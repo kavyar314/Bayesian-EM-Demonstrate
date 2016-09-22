@@ -1,0 +1,3804 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    160762,       3795]
+NotebookOptionsPosition[    155956,       3647]
+NotebookOutlinePosition[    157576,       3698]
+CellTagsIndexPosition[    157240,       3686]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+Determining the Weightage of a Loaded Coin Using Various Algorithms\
+\>", "DemoTitle",
+ CellChangeTimes->{{3.614516627919814*^9, 3.614516629572186*^9}, {
+   3.614546059669722*^9, 3.614546071760306*^9}, 3.6145467543922987`*^9}],
+
+Cell[CellGroupData[{
+
+Cell["", "InitializationSection"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"To", " ", "Generate", " ", "the", " ", "Stream"}], "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"GenStr", "[", 
+    RowBox[{"x_", ",", "y_", ",", "z_"}], "]"}], ":=", "\[IndentingNewLine]", 
+   RowBox[{"Table", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"Block", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"c", "=", 
+         RowBox[{"RandomChoice", "[", 
+          RowBox[{"{", 
+           RowBox[{"x", ",", "y"}], "}"}], "]"}]}], "}"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"RandomChoice", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"c", ",", " ", 
+            RowBox[{"1", "-", "c"}]}], "}"}], "\[Rule]", 
+          RowBox[{"{", 
+           RowBox[{"1", ",", "0"}], "}"}]}], ",", "10"}], "]"}]}], 
+      "\[IndentingNewLine]", "]"}], ",", 
+     RowBox[{"{", "z", "}"}]}], "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.614372590072826*^9, 3.6143725936316338`*^9}, {
+   3.614372918148155*^9, 3.614372943072197*^9}, {3.614374384993021*^9, 
+   3.6143743916308327`*^9}, 3.614528458892514*^9},
+ CellID->402142591],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "Calculating", " ", "the", " ", "Likelihood", " ", "of", " ", "a", " ", 
+    "substream"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"LikelihoodCalc", "[", 
+    RowBox[{"trial_List", ",", " ", "coin_", ",", "coindict_"}], "]"}], ":=", 
+   " ", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"c", "=", 
+        RowBox[{"Total", "[", "trial", "]"}]}], ",", 
+       RowBox[{"k", "=", 
+        RowBox[{"coindict", "[", "coin", "]"}]}]}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"If", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"c", "\[Equal]", "0"}], " ", "&&", " ", 
+        RowBox[{"k", "==", "0"}]}], ",", "1", ",", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"c", "\[Equal]", 
+           RowBox[{"Length", "[", "trial", "]"}]}], " ", "&&", 
+          RowBox[{"k", "\[Equal]", "1"}]}], ",", "1", ",", " ", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"(", "k", ")"}], "^", "c"}], "*", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "-", "k"}], ")"}], "^", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"Length", "[", "trial", "]"}], "-", "c"}], ")"}]}]}]}], 
+        "]"}]}], "]"}]}], "\[IndentingNewLine]", "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.614372949891226*^9, 3.614372982564638*^9}},
+ CellID->679489828],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+   "1", " ", "Iteration", " ", "of", " ", "Expectation", " ", 
+    "Maximization"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"EMPreCalc", "[", 
+    RowBox[{
+    "coin1_", ",", " ", "coin2_", ",", " ", "totaltrial_List", ",", " ", 
+     "oldcoindict_"}], "]"}], ":=", "\[IndentingNewLine]", 
+   RowBox[{"Block", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"coindict", "=", "oldcoindict"}], ",", "LikelihoodA", ",", 
+       "LikelihoodB", ",", "a", ",", "b", ",", 
+       RowBox[{"ailist", "=", 
+        RowBox[{"{", "}"}]}], ",", " ", 
+       RowBox[{"bilist", "=", 
+        RowBox[{"{", "}"}]}]}], "}"}], ",", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"Do", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"LikelihoodA", "=", 
+          RowBox[{"LikelihoodCalc", "[", 
+           RowBox[{
+            RowBox[{"totaltrial", "[", 
+             RowBox[{"[", "i", "]"}], "]"}], ",", "coin1", ",", "coindict"}], 
+           " ", "]"}]}], ";", 
+         RowBox[{"LikelihoodB", "=", 
+          RowBox[{"LikelihoodCalc", "[", 
+           RowBox[{
+            RowBox[{"totaltrial", "[", 
+             RowBox[{"[", "i", "]"}], "]"}], ",", "coin2", ",", "coindict"}], 
+           " ", "]"}]}], ";", "\[IndentingNewLine]", 
+         RowBox[{"a", "=", 
+          RowBox[{"LikelihoodA", "/", 
+           RowBox[{"(", 
+            RowBox[{"LikelihoodA", "+", "LikelihoodB"}], ")"}]}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{"AppendTo", "[", 
+          RowBox[{"ailist", ",", "a"}], "]"}], ";", "\[IndentingNewLine]", 
+         RowBox[{"b", "=", 
+          RowBox[{"LikelihoodB", "/", 
+           RowBox[{"(", 
+            RowBox[{"LikelihoodA", "+", "LikelihoodB"}], ")"}]}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{"AppendTo", "[", 
+          RowBox[{"bilist", ",", "b"}], "]"}]}], ",", "\[IndentingNewLine]", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", " ", "1", ",", " ", 
+          RowBox[{"Length", "[", "totaltrial", "]"}]}], "}"}]}], "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"coindict", "[", "coin1", "]"}], "=", 
+       RowBox[{
+        RowBox[{"Total", "[", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"ailist", "[", 
+             RowBox[{"[", "i", "]"}], "]"}], "*", 
+            RowBox[{"Total", "[", 
+             RowBox[{"totaltrial", "[", 
+              RowBox[{"[", "i", "]"}], "]"}], "]"}]}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", " ", "1", ",", 
+             RowBox[{"Length", "[", "ailist", "]"}]}], "}"}]}], "]"}], "]"}], 
+        "/", 
+        RowBox[{"(", 
+         RowBox[{"10", "*", 
+          RowBox[{"Total", "[", "ailist", "]"}]}], ")"}]}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"coindict", "[", "coin2", "]"}], "=", 
+       RowBox[{
+        RowBox[{"Total", "[", 
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"bilist", "[", 
+             RowBox[{"[", "i", "]"}], "]"}], "*", 
+            RowBox[{"Total", "[", 
+             RowBox[{"totaltrial", "[", 
+              RowBox[{"[", "i", "]"}], "]"}], "]"}]}], ",", 
+           RowBox[{"{", 
+            RowBox[{"i", ",", " ", "1", ",", 
+             RowBox[{"Length", "[", "bilist", "]"}]}], "}"}]}], "]"}], "]"}], 
+        "/", 
+        RowBox[{"(", 
+         RowBox[{"10", "*", 
+          RowBox[{"Total", "[", "bilist", "]"}]}], ")"}]}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+        RowBox[{"AppendTo", "[", 
+         RowBox[{"gva", ",", 
+          RowBox[{"coindict", "[", "coin1", "]"}]}], "]"}], ";", 
+        "\[IndentingNewLine]", 
+        RowBox[{"AppendTo", "[", 
+         RowBox[{"gvb", ",", 
+          RowBox[{"coindict", "[", "coin2", "]"}]}], "]"}], ";"}], "*)"}], 
+      "\[IndentingNewLine]", 
+      RowBox[{"Return", "[", "coindict", "]"}]}]}], "\[IndentingNewLine]", 
+    "]"}]}]}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.6143729862464333`*^9, 3.6143730169572906`*^9}, 
+   3.614375206314192*^9, 3.614526725209042*^9, 3.614617070226615*^9, {
+   3.614618017326189*^9, 3.614618022205739*^9}, {3.614618054042479*^9, 
+   3.6146180551311502`*^9}, {3.614622195092561*^9, 3.6146222110443*^9}, {
+   3.614622592571978*^9, 3.614622593778426*^9}},
+ CellID->2014988097]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["", "ManipulateSection"],
+
+Cell[BoxData[
+ RowBox[{"Manipulate", "[", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Switch", " ", "between", " ", "Bayesian", " ", "and", " ", "EM"}],
+    "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"Switch", "[", "\[IndentingNewLine]", 
+    RowBox[{
+    "algorithm", ",", "\[IndentingNewLine]", "\"\<Bayesian Inference\>\"", 
+     ",", " ", "\[IndentingNewLine]", 
+     RowBox[{"(*", "Bayesian", "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"GraphicsColumn", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Labeled", "[", 
+          RowBox[{
+           RowBox[{"BarChart", "[", 
+            RowBox[{
+             RowBox[{"Values", "[", "DictBelief", "]"}], ",", 
+             RowBox[{"ChartLabels", "\[Rule]", 
+              RowBox[{"Placed", "[", 
+               RowBox[{
+                RowBox[{"{", 
+                 RowBox[{
+                 "0", ",", "0.1", ",", "0.2", ",", "0.3", ",", "0.4", ",", 
+                  "0.5", ",", "0.6", ",", "0.7", ",", "0.8", ",", "0.9", ",", 
+                  "1.0"}], "}"}], ",", "Bottom"}], "]"}]}], ",", 
+             RowBox[{"AxesLabel", "\[Rule]", 
+              RowBox[{"{", 
+               RowBox[{
+               "\"\<Coin Weightage\>\"", ",", "\"\<Belief in Weightage\>\""}],
+                "}"}]}], ",", "\[IndentingNewLine]", 
+             RowBox[{
+             "PlotLabel", "\[Rule]", " ", 
+              "\"\<Convergence Onto Intial Stream Probability\>\""}], ",", 
+             "\[IndentingNewLine]", 
+             RowBox[{"PlotRange", "\[Rule]", "1"}], ",", 
+             "\[IndentingNewLine]", 
+             RowBox[{"ImageSize", "\[Rule]", 
+              RowBox[{"{", 
+               RowBox[{"343", ",", "173"}], "}"}]}]}], "]"}], ",", 
+           "\[IndentingNewLine]", 
+           RowBox[{"Column", "[", 
+            RowBox[{"{", "\[IndentingNewLine]", 
+             RowBox[{
+              RowBox[{"Style", "[", 
+               RowBox[{
+                RowBox[{"\"\<number of coin flips: \>\"", "<>", " ", 
+                 RowBox[{"ToString", "[", " ", "trialno", "]"}]}], ",", " ", 
+                RowBox[{"FontFamily", "\[Rule]", "\"\<Arial\>\""}]}], "]"}], 
+              ",", 
+              RowBox[{"Style", "[", 
+               RowBox[{
+                RowBox[{"\"\<coin weightage: \>\"", "<>", 
+                 RowBox[{"ToString", "[", " ", "weight", "]"}]}], ",", 
+                RowBox[{"FontFamily", "\[Rule]", "\"\<Arial\>\""}]}], "]"}]}],
+              " ", "\[IndentingNewLine]", "}"}], "]"}]}], 
+          "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
+         RowBox[{"(*", "Bayesian", "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"ListPlot", "[", 
+          RowBox[{
+           RowBox[{"{", "maxellist", "}"}], ",", 
+           RowBox[{"PlotRange", "\[Rule]", "1"}], ",", " ", 
+           RowBox[{"AxesLabel", "\[Rule]", " ", 
+            RowBox[{"{", 
+             RowBox[{
+             "\"\<Number of Iterations\>\"", ",", 
+              "\"\<Weightage of Coin\>\""}], "}"}]}], ",", " ", 
+           RowBox[{
+           "PlotLabel", "\[Rule]", 
+            "\"\<Convergence of Probability Calculation\>\""}], ",", " ", 
+           RowBox[{"ImageSize", "\[Rule]", 
+            RowBox[{"{", 
+             RowBox[{"350", ",", "170"}], "}"}]}], ",", 
+           RowBox[{"Epilog", "\[Rule]", 
+            RowBox[{"{", 
+             RowBox[{"Red", ",", " ", 
+              RowBox[{"Line", "[", 
+               RowBox[{"{", 
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{"0", ",", 
+                   RowBox[{"Dynamic", "[", "weight", "]"}]}], "}"}], ",", 
+                 RowBox[{"{", 
+                  RowBox[{"1000", ",", 
+                   RowBox[{"Dynamic", "[", "weight", "]"}]}], "}"}]}], "}"}], 
+               "]"}]}], "}"}]}]}], "]"}]}], "\[IndentingNewLine]", "}"}], ",",
+        " ", "\[IndentingNewLine]", 
+       RowBox[{"ImageSize", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"450", ",", "450"}], "}"}]}], ",", " ", 
+       RowBox[{"Frame", "\[Rule]", "None"}]}], "]"}], ",", 
+     "\[IndentingNewLine]", "\"\<Expectation Maximization\>\"", ",", " ", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", "EM", "*)"}], "\[IndentingNewLine]", 
+     RowBox[{"GraphicsColumn", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Labeled", "[", 
+          RowBox[{
+           RowBox[{"ListPlot", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"gva", ",", "gvb"}], "}"}], ",", 
+             RowBox[{"PlotRange", "\[Rule]", "1"}], ",", " ", 
+             RowBox[{"AxesLabel", "\[Rule]", " ", 
+              RowBox[{"{", 
+               RowBox[{
+               "\"\<Number of Iterations\>\"", ",", 
+                "\"\<Weightage of Coin\>\""}], "}"}]}], ",", " ", 
+             RowBox[{
+             "PlotLabel", "\[Rule]", 
+              "\"\<Convergence of Probability Calculation\>\""}], ",", " ", 
+             RowBox[{"ImageSize", "\[Rule]", 
+              RowBox[{"{", 
+               RowBox[{"Automatic", ",", "130"}], "}"}]}], ",", " ", 
+             RowBox[{"AspectRatio", "\[Rule]", 
+              RowBox[{"1", "/", "3"}]}], ",", " ", 
+             RowBox[{"Epilog", "\[Rule]", 
+              RowBox[{"{", 
+               RowBox[{"Red", ",", " ", 
+                RowBox[{"Line", "[", 
+                 RowBox[{"{", 
+                  RowBox[{
+                   RowBox[{"{", 
+                    RowBox[{"0", ",", 
+                    RowBox[{"Dynamic", "[", "weightage1", "]"}]}], "}"}], ",", 
+                   RowBox[{"{", 
+                    RowBox[{"100", ",", 
+                    RowBox[{"Dynamic", "[", "weightage1", "]"}]}], "}"}]}], 
+                  "}"}], "]"}], ",", " ", 
+                RowBox[{"Line", "[", 
+                 RowBox[{"{", 
+                  RowBox[{
+                   RowBox[{"{", 
+                    RowBox[{"0", ",", " ", 
+                    RowBox[{"Dynamic", "[", "weightage2", "]"}]}], "}"}], ",", 
+                   RowBox[{"{", 
+                    RowBox[{"100", ",", 
+                    RowBox[{"Dynamic", "[", "weightage2", "]"}]}], "}"}]}], 
+                  "}"}], "]"}]}], "}"}]}]}], "]"}], ",", 
+           RowBox[{"Column", "[", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"Style", "[", 
+               RowBox[{
+                RowBox[{"\"\<coin 1 weightage: \>\"", "<>", 
+                 RowBox[{"ToString", "[", "weightage1", "]"}]}], ",", " ", 
+                RowBox[{"FontFamily", "\[Rule]", "\"\<Arial\>\""}]}], "]"}], 
+              ",", 
+              RowBox[{"Style", "[", 
+               RowBox[{
+                RowBox[{"\"\<coin 2 weightage: \>\"", "<>", 
+                 RowBox[{"ToString", "[", " ", "weightage2", "]"}]}], ",", 
+                " ", 
+                RowBox[{"FontFamily", "\[Rule]", "\"\<Arial\>\""}]}], "]"}], 
+              ",", "\[IndentingNewLine]", 
+              RowBox[{"Style", "[", 
+               RowBox[{
+                RowBox[{"\"\<convergence for one coin is: \>\"", "<>", " ", 
+                 RowBox[{"ToString", "[", 
+                  RowBox[{"gva", "[", 
+                   RowBox[{"[", 
+                    RowBox[{"-", "1"}], "]"}], "]"}], "]"}]}], ",", 
+                RowBox[{"FontFamily", "\[Rule]", "\"\<Arial\>\""}]}], "]"}], 
+              ",", "\[IndentingNewLine]", 
+              RowBox[{"Style", "[", 
+               RowBox[{
+                RowBox[{
+                "\"\<convergence for the other coin is: \>\"", "<>", " ", 
+                 RowBox[{"ToString", "[", 
+                  RowBox[{"gvb", "[", 
+                   RowBox[{"[", 
+                    RowBox[{"-", "1"}], "]"}], "]"}], "]"}]}], ",", 
+                RowBox[{"FontFamily", "\[Rule]", " ", "\"\<Arial\>\""}]}], 
+               "]"}]}], "\[IndentingNewLine]", "}"}], "]"}], ",", 
+           RowBox[{"{", "Bottom", "}"}]}], "]"}], ",", "\[IndentingNewLine]", 
+         RowBox[{"(*", "Bayesian", "*)"}], "\[IndentingNewLine]", 
+         RowBox[{"BarChart", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{
+             RowBox[{"gva", "[", 
+              RowBox[{"[", 
+               RowBox[{"-", "1"}], "]"}], "]"}], ",", " ", 
+             RowBox[{"gvb", "[", 
+              RowBox[{"[", 
+               RowBox[{"-", "1"}], "]"}], "]"}]}], "}"}], ",", " ", 
+           RowBox[{"ImageSize", "\[Rule]", 
+            RowBox[{"{", 
+             RowBox[{"350", ",", "170"}], "}"}]}], ",", " ", 
+           RowBox[{"PlotRange", "\[Rule]", "1"}], ",", " ", 
+           RowBox[{"AxesLabel", "\[Rule]", 
+            RowBox[{"{", 
+             RowBox[{"\"\<Coin\>\"", ",", "\"\<Weightage\>\""}], "}"}]}], ",",
+            "\[IndentingNewLine]", 
+           RowBox[{
+           "PlotLabel", "\[Rule]", " ", 
+            "\"\<Convergence of Probabilities of Coins\>\""}], ",", 
+           "\[IndentingNewLine]", 
+           RowBox[{"ImageSize", "\[Rule]", 
+            RowBox[{"{", 
+             RowBox[{"343", ",", "173"}], "}"}]}]}], "]"}]}], 
+        "\[IndentingNewLine]", "}"}], ",", " ", "\[IndentingNewLine]", 
+       RowBox[{"ImageSize", "\[Rule]", 
+        RowBox[{"{", 
+         RowBox[{"450", ",", "450"}], "}"}]}], ",", " ", 
+       RowBox[{"Frame", "\[Rule]", "None"}]}], "]"}]}], "\[IndentingNewLine]",
+     "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"(*", "Controls", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Start", " ", "buttons"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", "Bayesian", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"Initial", " ", "choice"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{"algorithm", ",", " ", "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{
+      "\"\<Bayesian Inference\>\"", ",", " ", 
+       "\"\<Expectation Maximization\>\""}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Row", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"Dynamic", "@", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"algorithm", "===", "\"\<Bayesian Inference\>\""}], ",", 
+         "\[IndentingNewLine]", 
+         RowBox[{"Button", "[", 
+          RowBox[{"\"\<start\>\"", ",", "\[IndentingNewLine]", 
+           RowBox[{"Dynamic", "[", 
+            RowBox[{"Block", "[", 
+             RowBox[{
+              RowBox[{"{", "str", "}"}], ",", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"DictBelief", "=", 
+                RowBox[{"<|", 
+                 RowBox[{
+                  RowBox[{
+                   RowBox[{"0", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"1", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"2", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", 
+                  RowBox[{
+                   RowBox[{"3", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"4", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"5", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"6", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"7", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"8", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"9", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}], ",", " ", 
+                  RowBox[{
+                   RowBox[{"10", "/", "10"}], "\[Rule]", 
+                   RowBox[{"1", "/", "11"}]}]}], "|>"}]}], ";", 
+               "\[IndentingNewLine]", 
+               RowBox[{"maxellist", "=", 
+                RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+               RowBox[{"str", "=", 
+                RowBox[{"Table", "[", 
+                 RowBox[{
+                  RowBox[{"RandomChoice", "[", 
+                   RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"weight", ",", 
+                    RowBox[{"1", "-", "weight"}]}], "}"}], "\[Rule]", 
+                    RowBox[{"{", 
+                    RowBox[{"1", ",", "0"}], "}"}]}], "]"}], ",", 
+                  RowBox[{"{", "trialno", "}"}]}], "]"}]}], ";", 
+               "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"Block", "[", 
+                  RowBox[{
+                   RowBox[{"{", "TotalBelief", "}"}], ",", 
+                   "\[IndentingNewLine]", 
+                   RowBox[{
+                    RowBox[{"Do", "[", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"DictBelief", "[", 
+                    RowBox[{"i", "/", "10"}], "]"}], "=", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"If", "[", 
+                    RowBox[{
+                    RowBox[{"#", "\[Equal]", "0"}], ",", " ", 
+                    RowBox[{"N", "[", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{"1", "-", 
+                    RowBox[{"i", "/", "10"}]}], ")"}], "*", 
+                    RowBox[{"DictBelief", "[", 
+                    RowBox[{"i", "/", "10"}], "]"}]}], "]"}], ",", 
+                    RowBox[{"N", "[", 
+                    RowBox[{
+                    RowBox[{"i", "/", "10"}], "*", 
+                    RowBox[{"DictBelief", "[", 
+                    RowBox[{"i", "/", "10"}], "]"}]}], "]"}]}], "]"}]}], ",", 
+                    "\[IndentingNewLine]", " ", 
+                    RowBox[{"{", 
+                    RowBox[{"i", ",", " ", "0", ",", " ", "10"}], "}"}]}], 
+                    "]"}], ";", "\[IndentingNewLine]", 
+                    RowBox[{"TotalBelief", "=", 
+                    RowBox[{"Total", "[", 
+                    RowBox[{"Values", "[", "DictBelief", "]"}], "]"}]}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"DictBelief", "=", 
+                    RowBox[{"DictBelief", "/", "TotalBelief"}]}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"AppendTo", "[", 
+                    RowBox[{"maxellist", ",", 
+                    RowBox[{
+                    RowBox[{"Position", "[", 
+                    RowBox[{"DictBelief", ",", 
+                    RowBox[{"Max", "[", "DictBelief", "]"}]}], "]"}], "[", 
+                    RowBox[{"[", 
+                    RowBox[{"1", ",", "1", ",", "1"}], "]"}], "]"}]}], "]"}], 
+                    ";", "\[IndentingNewLine]", 
+                    RowBox[{"Pause", "[", "0.007", "]"}]}]}], "]"}], 
+                 "\[IndentingNewLine]", "&"}], "/@", "str"}]}]}], "]"}], 
+            "]"}], ",", "\[IndentingNewLine]", 
+           RowBox[{"Method", "\[Rule]", "\"\<Queued\>\""}], ",", 
+           "\[IndentingNewLine]", 
+           RowBox[{"ImageSize", "\[Rule]", " ", "125"}]}], 
+          "\[IndentingNewLine]", "]"}], ",", 
+         RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", "EM", "*)"}], "\[IndentingNewLine]", 
+      RowBox[{"Dynamic", "@", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], 
+         ",", "\[IndentingNewLine]", 
+         RowBox[{"Button", "[", 
+          RowBox[{"\"\<start\>\"", ",", 
+           RowBox[{"(*", 
+            RowBox[{"EM", " ", "Final", " ", "Calc"}], "*)"}], " ", 
+           "\[IndentingNewLine]", 
+           RowBox[{"Dynamic", "@", 
+            RowBox[{"Block", "[", 
+             RowBox[{
+              RowBox[{"{", "inputTotalTrial", "}"}], ",", 
+              "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"inputTotalTrial", "=", 
+                RowBox[{"GenStr", "[", 
+                 RowBox[{
+                 "weightage1", ",", "weightage2", ",", "numberoftrials"}], 
+                 "]"}]}], ";", "\[IndentingNewLine]", 
+               RowBox[{"CoinDictionary", "=", 
+                RowBox[{"<|", 
+                 RowBox[{
+                  RowBox[{"\"\<A\>\"", "\[Rule]", "estimate1"}], ",", " ", 
+                  RowBox[{"\"\<B\>\"", "\[Rule]", "estimate2"}]}], "|>"}]}], 
+               ";", "\[IndentingNewLine]", 
+               RowBox[{"gva", "=", 
+                RowBox[{"{", 
+                 RowBox[{"CoinDictionary", "[", "\"\<A\>\"", "]"}], "}"}]}], 
+               ";", "\[IndentingNewLine]", 
+               RowBox[{"gvb", "=", 
+                RowBox[{"{", 
+                 RowBox[{"CoinDictionary", "[", "\"\<B\>\"", "]"}], "}"}]}], 
+               ";", "\[IndentingNewLine]", 
+               RowBox[{"FixedPoint", "[", "\[IndentingNewLine]", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"Block", "[", 
+                   RowBox[{
+                    RowBox[{"{", 
+                    RowBox[{"e", "=", 
+                    RowBox[{"EMPreCalc", "[", 
+                    RowBox[{
+                    "\"\<A\>\"", ",", "\"\<B\>\"", ",", "inputTotalTrial", 
+                    ",", "#"}], "]"}]}], "}"}], ",", "\[IndentingNewLine]", 
+                    RowBox[{
+                    RowBox[{"AppendTo", "[", 
+                    RowBox[{"gva", ",", 
+                    RowBox[{"#", "[", "\"\<A\>\"", "]"}]}], "]"}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"AppendTo", "[", 
+                    RowBox[{"gvb", ",", 
+                    RowBox[{"#", "[", "\"\<B\>\"", "]"}]}], "]"}], ";", 
+                    "\[IndentingNewLine]", 
+                    RowBox[{"Pause", "[", "0.007", "]"}], ";", 
+                    "\[IndentingNewLine]", "e"}]}], "]"}], "&"}], ",", 
+                 "\[IndentingNewLine]", "CoinDictionary", ",", 
+                 RowBox[{"SameTest", "\[Rule]", 
+                  RowBox[{"(", 
+                   RowBox[{
+                    RowBox[{"And", "@@", 
+                    RowBox[{"Map", "[", 
+                    RowBox[{
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{
+                    RowBox[{"Abs", "[", "#", "]"}], "<", 
+                    RowBox[{"10", "^", 
+                    RowBox[{"(", 
+                    RowBox[{"-", "10"}], ")"}]}]}], "&"}], ")"}], ",", 
+                    RowBox[{
+                    RowBox[{"Values", "[", "#1", "]"}], "-", 
+                    RowBox[{"Values", "[", "#2", "]"}]}]}], "]"}]}], "&"}], 
+                   ")"}]}]}], "]"}]}]}], "\[IndentingNewLine]", "]"}]}], ",", 
+           RowBox[{"Method", "\[Rule]", "\"\<Queued\>\""}], ",", " ", 
+           RowBox[{"ImageSize", "\[Rule]", "125"}]}], "\[IndentingNewLine]", 
+          "]"}], ",", 
+         RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}]}], "}"}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", "Sliders", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{"maxellist", ",", " ", 
+     RowBox[{"{", "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"weightage1", ",", "0.5"}], "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"weightage2", ",", "0.5"}], "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"numberoftrials", ",", " ", "20"}], "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"estimate1", ",", " ", "0.5"}], "}"}], ",", " ", 
+     RowBox[{"{", "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"estimate2", ",", "0.5"}], "}"}], ",", " ", 
+     RowBox[{"{", "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"weight", ",", "0.5"}], "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", "EM", "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"coin", " ", "1"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], ",", 
+      RowBox[{"Style", "[", 
+       RowBox[{"\"\<coin 1\>\"", ",", "Bold"}], "]"}], ",", " ", 
+      RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], ",", 
+      RowBox[{"Control", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"weightage1", ",", "0.5", ",", "\"\<actual\>\""}], "}"}], 
+         ",", "0", ",", "1", ",", "0.1", ",", " ", 
+         RowBox[{"ImageSize", "\[Rule]", "100"}]}], "}"}], "]"}], ",", " ", 
+      RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], ",", 
+      RowBox[{"Control", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+          "estimate1", ",", " ", "0.5", ",", " ", "\"\<estimate\>\""}], "}"}],
+          ",", "0.01", ",", "0.99", ",", 
+         RowBox[{"ImageSize", "\[Rule]", "100"}]}], "}"}], "]"}], ",", " ", 
+      RowBox[{"Control", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"weight", ",", "0.5"}], "}"}], ",", "0", ",", "1", ",", 
+         "0.1", ",", 
+         RowBox[{"ImageSize", "\[Rule]", "100"}]}], "}"}], "]"}]}], "]"}]}], 
+   ",", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"coin", " ", "2"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], ",", 
+      RowBox[{"Style", "[", 
+       RowBox[{"\"\<coin 2\>\"", ",", " ", "Bold"}], "]"}], ",", " ", 
+      RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], ",", 
+      RowBox[{"Control", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"weightage2", ",", "0.5", ",", "\"\<actual\>\""}], "}"}], 
+         ",", "0", ",", "1", ",", "0.1", ",", 
+         RowBox[{"ImageSize", "\[Rule]", "100"}]}], "}"}], "]"}], ",", " ", 
+      RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], ",", 
+      RowBox[{"Control", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"estimate2", ",", "0.5", ",", "\"\<estimate\>\""}], "}"}], 
+         ",", "0.01", ",", "0.99", ",", 
+         RowBox[{"ImageSize", "\[Rule]", "100"}]}], "}"}], "]"}], ",", 
+      RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+   "\[IndentingNewLine]", "Delimiter", ",", "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"CoinDictionary", ",", " ", 
+       RowBox[{"<|", 
+        RowBox[{
+         RowBox[{"\"\<A\>\"", "\[Rule]", "estimate1"}], ",", " ", 
+         RowBox[{"\"\<B\>\"", "\[Rule]", "estimate2"}]}], "|>"}]}], "}"}], 
+     ",", 
+     RowBox[{"{", "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"gva", ",", " ", 
+       RowBox[{"{", "estimate1", "}"}]}], "}"}], ",", 
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"gvb", ",", 
+       RowBox[{"{", "estimate2", "}"}]}], "}"}], ",", 
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"number", " ", "of", " ", "trials"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Expectation Maximization\>\""}], ",", 
+      RowBox[{"Control", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"numberoftrials", ",", "20", ",", "\"\<# of trials\>\""}], 
+          "}"}], ",", "10", ",", "100", ",", "1", ",", 
+         RowBox[{"ImageSize", "\[Rule]", "100"}]}], "}"}], "]"}], ",", 
+      RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", "Bayesian", "*)"}], " ", "\[IndentingNewLine]", 
+   RowBox[{"Dynamic", "@", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"algorithm", "===", "\"\<Bayesian Inference\>\""}], ",", 
+      RowBox[{"Control", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"trialno", ",", "300", ",", " ", "\"\<# of trials\>\""}], 
+          "}"}], ",", "50", ",", "500", ",", "1", ",", 
+         RowBox[{"ImageSize", "\[Rule]", "100"}]}], "}"}], "]"}], ",", 
+      RowBox[{"Spacer", "[", "0", "]"}]}], "]"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"trialno", ",", " ", "300"}], "}"}], ",", " ", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"DictBelief", ",", " ", 
+       RowBox[{"<|", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"0", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"1", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"2", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", 
+         RowBox[{
+          RowBox[{"3", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"4", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"5", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"6", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"7", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"8", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"9", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{"10", "/", "10"}], "\[Rule]", 
+          RowBox[{"1", "/", "11"}]}]}], "|>"}]}], "}"}], ",", 
+     RowBox[{"{", "}"}], ",", 
+     RowBox[{"ControlType", "\[Rule]", "None"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"ControlPlacement", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "Top", ",", " ", "Left", ",", " ", "Left", ",", " ", "Left", ",", "Left",
+       ",", "Left", ",", "Left", ",", "Left", ",", " ", "Left", ",", " ", 
+      "Left", ",", " ", "Left", ",", " ", "Left", ",", " ", "Left", ",", " ", 
+      "Left", ",", "Left", ",", "Left"}], "}"}]}], ",", "\[IndentingNewLine]", 
+   RowBox[{"SynchronousUpdating", "\[Rule]", "True"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"AutorunSequencing", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"1", ",", "2"}], "}"}]}], ",", "\[IndentingNewLine]", 
+   RowBox[{"ContentSize", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"455", ",", " ", "455"}], "}"}]}], ",", "\[IndentingNewLine]", 
+   RowBox[{"FrameMargins", "\[Rule]", "Tiny"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"Initialization", "\[RuleDelayed]", 
+    RowBox[{"(", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"estimate1", "=", "0.5"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"estimate2", "=", "0.5"}], ";"}], "\[IndentingNewLine]", 
+     ")"}]}]}], "\[IndentingNewLine]", "]"}]], "Input",
+ CellChangeTimes->{{3.614428072719809*^9, 3.6144280750374413`*^9}, {
+   3.6144285211313457`*^9, 3.614428590516801*^9}, {3.6144288738341503`*^9, 
+   3.614428876530249*^9}, {3.614428909822835*^9, 3.614428949012033*^9}, {
+   3.614429064202168*^9, 3.6144290766290207`*^9}, {3.61442920590545*^9, 
+   3.614429231464479*^9}, {3.614429264099813*^9, 3.6144293217520313`*^9}, {
+   3.6144295618029003`*^9, 3.6144295703480673`*^9}, {3.6144296171802607`*^9, 
+   3.614429691914219*^9}, {3.614429816953475*^9, 3.614429850334085*^9}, 
+   3.614429892164001*^9, {3.614429939760985*^9, 3.614429955445654*^9}, {
+   3.614430194304092*^9, 3.614430208634478*^9}, {3.6144302959749203`*^9, 
+   3.614430424643659*^9}, 3.614430532865526*^9, {3.6144305934013968`*^9, 
+   3.6144306369584627`*^9}, {3.6144308111485*^9, 3.614430830716793*^9}, 
+   3.614442481827958*^9, {3.61444272114277*^9, 3.61444275967132*^9}, {
+   3.614442801051277*^9, 3.614442896007584*^9}, {3.614442989503303*^9, 
+   3.614443102242136*^9}, {3.6144431710426893`*^9, 3.614443270914716*^9}, {
+   3.614443592805893*^9, 3.6144435938839808`*^9}, {3.614443737232662*^9, 
+   3.614443740957777*^9}, {3.614443783721636*^9, 3.614443887511449*^9}, {
+   3.614444040459746*^9, 3.614444052238473*^9}, {3.614444441021353*^9, 
+   3.614444556536174*^9}, {3.614444714330467*^9, 3.614444810624484*^9}, {
+   3.614444840835301*^9, 3.614444904178421*^9}, {3.614444937514296*^9, 
+   3.6144449985746193`*^9}, {3.6144451968559847`*^9, 3.614445230585507*^9}, {
+   3.61444535539655*^9, 3.614445379147002*^9}, {3.614445491208878*^9, 
+   3.6144454935470457`*^9}, {3.6144455304464827`*^9, 3.614445550753026*^9}, {
+   3.614445582428917*^9, 3.614445583652421*^9}, {3.614445684056322*^9, 
+   3.614445823252161*^9}, {3.614446146279797*^9, 3.614446224265779*^9}, {
+   3.6144607931906757`*^9, 3.6144607949782*^9}, {3.6144608365309*^9, 
+   3.61446088127101*^9}, {3.614460933884985*^9, 3.614460965121285*^9}, {
+   3.614461055902445*^9, 3.614461167330761*^9}, {3.6144612110398693`*^9, 
+   3.61446128566718*^9}, {3.614461601362897*^9, 3.614461612710042*^9}, {
+   3.614461694350192*^9, 3.6144618193496847`*^9}, {3.614508645992445*^9, 
+   3.61450865236302*^9}, {3.6145086869289293`*^9, 3.614508897070777*^9}, {
+   3.614509012641156*^9, 3.6145091147113943`*^9}, {3.614509146187036*^9, 
+   3.614509164303912*^9}, {3.614509253833908*^9, 3.614509275110024*^9}, {
+   3.614509352859103*^9, 3.614509376866378*^9}, {3.614509778309018*^9, 
+   3.6145099022904243`*^9}, {3.614509943801106*^9, 3.6145099526121492`*^9}, 
+   3.61451004838916*^9, {3.614510155677191*^9, 3.614510156735339*^9}, 
+   3.614510212451562*^9, {3.6145103833599033`*^9, 3.614510388326578*^9}, {
+   3.614510434421515*^9, 3.614510514677484*^9}, {3.614510555468487*^9, 
+   3.6145106697672157`*^9}, {3.614510748703868*^9, 3.614510751822402*^9}, {
+   3.614510806463749*^9, 3.614510840407391*^9}, {3.614510931441106*^9, 
+   3.614510947069501*^9}, {3.614511007985586*^9, 3.614511057697753*^9}, {
+   3.614511199509058*^9, 3.6145112789604597`*^9}, {3.6145113153565817`*^9, 
+   3.614511315626903*^9}, {3.61451138606516*^9, 3.6145113991142187`*^9}, {
+   3.614511879848225*^9, 3.614511894948297*^9}, {3.614512062512496*^9, 
+   3.614512062855556*^9}, {3.614512158497397*^9, 3.614512183529752*^9}, {
+   3.614512314273183*^9, 3.61451232106529*^9}, {3.61451235804253*^9, 
+   3.614512418997302*^9}, {3.6145124683462887`*^9, 3.614512636905698*^9}, {
+   3.6145126990872927`*^9, 3.6145127034298058`*^9}, {3.614512740979895*^9, 
+   3.614512741460335*^9}, {3.614512775102813*^9, 3.614512882216411*^9}, {
+   3.61451293381739*^9, 3.614512951836434*^9}, {3.614513363465085*^9, 
+   3.614513403665228*^9}, {3.6145135123546467`*^9, 3.61451354612006*^9}, {
+   3.614513583782971*^9, 3.6145138091493473`*^9}, {3.614513886198922*^9, 
+   3.6145139942283173`*^9}, {3.6145140376300983`*^9, 3.61451412223603*^9}, {
+   3.614514523195408*^9, 3.614514533503524*^9}, {3.614514589920719*^9, 
+   3.614514633385007*^9}, {3.6145147089098787`*^9, 3.614514721087338*^9}, {
+   3.614514881850486*^9, 3.614514933359253*^9}, {3.614515936879539*^9, 
+   3.614515949338979*^9}, {3.614516206848187*^9, 3.61451623632301*^9}, {
+   3.6145268154577093`*^9, 3.6145268316942177`*^9}, {3.6145268909603243`*^9, 
+   3.61452694183302*^9}, {3.614527111925671*^9, 3.6145271953275146`*^9}, {
+   3.614527278840788*^9, 3.6145272835383167`*^9}, {3.614527426077368*^9, 
+   3.614527426515586*^9}, {3.614527485126235*^9, 3.614527531405691*^9}, {
+   3.614527572227316*^9, 3.614527576647592*^9}, 3.61452799963352*^9, {
+   3.6145282790551443`*^9, 3.61452828148708*^9}, {3.614528517104607*^9, 
+   3.6145285242732277`*^9}, {3.6145285936420794`*^9, 3.61452860291367*^9}, {
+   3.614528646320286*^9, 3.614528659607629*^9}, {3.614528710583797*^9, 
+   3.61452873379842*^9}, {3.614528805705245*^9, 3.614528957933919*^9}, {
+   3.614528998426717*^9, 3.614529001850684*^9}, {3.61453244065266*^9, 
+   3.614532474412466*^9}, {3.6145625326580343`*^9, 3.61456255515341*^9}, {
+   3.614563006019835*^9, 3.6145630976134577`*^9}, {3.614563329721691*^9, 
+   3.614563372862241*^9}, {3.614563454878696*^9, 3.614563516006424*^9}, {
+   3.6145635889256353`*^9, 3.614563620467451*^9}, {3.614563755057581*^9, 
+   3.6145637720803413`*^9}, {3.614593107125984*^9, 3.614593118118079*^9}, {
+   3.614593413489254*^9, 3.61459341443917*^9}, {3.614593758979106*^9, 
+   3.614593768893716*^9}, {3.614593984760209*^9, 3.614593988606359*^9}, {
+   3.614594098197781*^9, 3.614594116272251*^9}, {3.614594152043323*^9, 
+   3.61459415273067*^9}, {3.614594283023666*^9, 3.614594337618724*^9}, {
+   3.61459436905387*^9, 3.6145943740253477`*^9}, {3.614594408383807*^9, 
+   3.61459446378061*^9}, {3.6145947648214693`*^9, 3.6145948782276506`*^9}, {
+   3.61459493829569*^9, 3.6145949597489777`*^9}, {3.614595059726931*^9, 
+   3.614595066529336*^9}, {3.614595189253305*^9, 3.614595230735241*^9}, {
+   3.614595365613523*^9, 3.6145954247791*^9}, {3.614595466040452*^9, 
+   3.614595467717431*^9}, {3.6145955691462927`*^9, 3.614595685767661*^9}, {
+   3.6145957227717876`*^9, 3.614595723098505*^9}, {3.6145959739981833`*^9, 
+   3.614595987319173*^9}, {3.614596025741851*^9, 3.6145960334895287`*^9}, {
+   3.614596130481429*^9, 3.614596140754766*^9}, {3.614596235896554*^9, 
+   3.6145962494243307`*^9}, {3.614596659428646*^9, 3.614596661317771*^9}, {
+   3.614596848816647*^9, 3.6145968489852324`*^9}, {3.614596894943902*^9, 
+   3.61459691486802*^9}, {3.614597103579371*^9, 3.6145971606936693`*^9}, {
+   3.614597589361455*^9, 3.6145976648577547`*^9}, {3.6145977300514402`*^9, 
+   3.614597796286344*^9}, {3.614597881419856*^9, 3.614597884696603*^9}, {
+   3.614597946662046*^9, 3.614597951919004*^9}, {3.614598210825564*^9, 
+   3.614598215896414*^9}, {3.614598267315834*^9, 3.61459832341339*^9}, {
+   3.614598356362143*^9, 3.614598395867383*^9}, {3.614598461125924*^9, 
+   3.614598540527082*^9}, {3.614598594897914*^9, 3.6145986245433207`*^9}, {
+   3.614598949764138*^9, 3.614598957685822*^9}, {3.614599045848502*^9, 
+   3.614599084660348*^9}, {3.614599237610187*^9, 3.614599301992406*^9}, {
+   3.614599455376547*^9, 3.614599458504534*^9}, {3.6145995774756823`*^9, 
+   3.614599654987537*^9}, {3.614599734414048*^9, 3.614599749257936*^9}, {
+   3.614599837315681*^9, 3.614599852912837*^9}, {3.614599912961741*^9, 
+   3.6146000217607*^9}, {3.6146000853172827`*^9, 3.614600115983333*^9}, {
+   3.6146003902162952`*^9, 3.6146004020761423`*^9}, {3.6146004480775843`*^9, 
+   3.6146004519401693`*^9}, {3.614600594855109*^9, 3.614600644966558*^9}, {
+   3.6146009013636303`*^9, 3.614601047331882*^9}, {3.614601099903253*^9, 
+   3.614601130157247*^9}, 3.614601710290584*^9, {3.614601812689397*^9, 
+   3.614601868812849*^9}, {3.614602066204228*^9, 3.6146021006895*^9}, {
+   3.614602136424753*^9, 3.614602173400797*^9}, 3.6146023131744833`*^9, 
+   3.614602350076661*^9, {3.614602467473338*^9, 3.614602467798986*^9}, {
+   3.6146025041270742`*^9, 3.614602504573563*^9}, {3.6146025345771008`*^9, 
+   3.6146026007973623`*^9}, {3.614602654143734*^9, 3.6146026624106293`*^9}, 
+   3.614602978577545*^9, {3.61460302627977*^9, 3.614603054320286*^9}, {
+   3.614603110852235*^9, 3.614603179850939*^9}, {3.614603278527018*^9, 
+   3.6146033164103518`*^9}, {3.614603354983695*^9, 3.614603361217498*^9}, {
+   3.614604138630929*^9, 3.614604145332428*^9}, {3.614604279175749*^9, 
+   3.61460434701611*^9}, {3.61460438523077*^9, 3.6146044275490017`*^9}, {
+   3.6146045009315863`*^9, 3.614604505741808*^9}, {3.614604549708956*^9, 
+   3.614604608769309*^9}, {3.614612367811907*^9, 3.614612384976817*^9}, {
+   3.614612437977838*^9, 3.614612454799036*^9}, {3.6146125002719803`*^9, 
+   3.6146125657668037`*^9}, {3.6146127676290913`*^9, 3.614612785684547*^9}, {
+   3.6146128660372*^9, 3.614612945376172*^9}, {3.614613018539282*^9, 
+   3.6146130695953503`*^9}, {3.6146131291924543`*^9, 
+   3.6146132457498417`*^9}, {3.614613422927005*^9, 3.614613424351849*^9}, {
+   3.614613601056863*^9, 3.614613606343495*^9}, {3.614613692406336*^9, 
+   3.6146137305627127`*^9}, {3.614613784544696*^9, 3.614613804749189*^9}, {
+   3.614613849591889*^9, 3.614613849997901*^9}, {3.6146138932842083`*^9, 
+   3.614613893826056*^9}, {3.614613936608745*^9, 3.614613937239118*^9}, {
+   3.614613991869287*^9, 3.614614004760955*^9}, {3.614614171616386*^9, 
+   3.614614173858964*^9}, {3.614614315434606*^9, 3.614614358383466*^9}, {
+   3.614614392743001*^9, 3.614614462205727*^9}, {3.614614507178175*^9, 
+   3.614614531619133*^9}, {3.6146146113018837`*^9, 3.6146146148220673`*^9}, {
+   3.6146146539246273`*^9, 3.6146147054343967`*^9}, {3.614614941854128*^9, 
+   3.614614960722739*^9}, {3.614615033915792*^9, 3.614615048821929*^9}, {
+   3.614615086758363*^9, 3.614615123219303*^9}, {3.614615192708364*^9, 
+   3.614615203590205*^9}, {3.61461523828576*^9, 3.614615247808145*^9}, {
+   3.614615381291629*^9, 3.614615395374658*^9}, {3.614617881262204*^9, 
+   3.614617894144373*^9}, 3.6146179300632887`*^9, {3.614619468552205*^9, 
+   3.614619474681048*^9}, {3.6146195786477747`*^9, 3.614619628663197*^9}, {
+   3.614619933496735*^9, 3.614619933615601*^9}, {3.614622496347664*^9, 
+   3.6146225224122553`*^9}, {3.61462273277083*^9, 3.61462275161631*^9}, {
+   3.61462278393358*^9, 3.614622799347023*^9}, {3.614628408095522*^9, 
+   3.6146285352765713`*^9}, {3.614628580125*^9, 3.614628654921982*^9}, {
+   3.614628687493294*^9, 3.614628714125662*^9}, {3.614632878933559*^9, 
+   3.6146328795213947`*^9}, {3.614632909580121*^9, 3.614632910066867*^9}, {
+   3.6146329468091173`*^9, 3.614633009574791*^9}, {3.6146334207606297`*^9, 
+   3.614633450752001*^9}, {3.614633512799868*^9, 3.614633565301793*^9}, {
+   3.614633606559003*^9, 3.614633640523527*^9}, {3.614633674407475*^9, 
+   3.614633694026802*^9}, {3.6146337824471207`*^9, 3.614633785677096*^9}, {
+   3.614634194017399*^9, 3.6146342344907503`*^9}, {3.614641168973833*^9, 
+   3.614641181196782*^9}, {3.6146415576254787`*^9, 3.614641607406711*^9}, {
+   3.6146417494069643`*^9, 3.61464176449813*^9}, 3.614646871469508*^9, {
+   3.614647159522457*^9, 3.614647174343276*^9}, {3.614647414883347*^9, 
+   3.614647418906562*^9}, {3.614648370202888*^9, 3.614648379207389*^9}, {
+   3.614648409968751*^9, 3.614648436466445*^9}},
+ CellID->542973771],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.61464894756564*^9, 3.614648947689126*^9}},
+ CellID->1732817859]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "ManipulateCaptionSection"],
+
+Cell["\<\
+Bayesian inference and expectation maximization aim to determine the \
+weightage of various coins. Bayesian inference numerically evaluates the \
+likelihood (or \"belief\") that certain guesses for the weightage of the coin \
+might be correct; expectation maximization utilizes estimated probabilities \
+in order to determine the weightage of multiple coins by calculating the \
+likelihood of production of each stream, which, in turn, is utilized to \
+progressively refine the estimates until convergence. This Demonstration \
+visualizes the implementation of both of these algorithms to depict the \
+differences in the approach. For the Bayesian inference simulation, the \
+weightage of the coin and the number of coin flips (# of trials) can be \
+manipulated, and for the expectation maximization simulation, the weightage \
+of the two coins, the initial estimate for the weightage, and the number of \
+ten-flip trials can be manipulated.\
+\>", "ManipulateCaption",
+ CellChangeTimes->{{3.614516813509984*^9, 3.614517034563265*^9}, {
+   3.6145171080610123`*^9, 3.6145172583139668`*^9}, {3.614517347156596*^9, 
+   3.614517396070364*^9}, {3.6145417964810333`*^9, 3.61454182069106*^9}, 
+   3.614634335898016*^9, {3.614634448703939*^9, 3.614634516535927*^9}, {
+   3.614634702536681*^9, 3.614634712422971*^9}, {3.614634818564684*^9, 
+   3.614634855424321*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "ThumbnailSection"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`algorithm$$ = 
+    "Bayesian Inference", $CellContext`CoinDictionary$$ = Association[
+    "A" -> $CellContext`estimate1, 
+     "B" -> $CellContext`estimate2], $CellContext`DictBelief$$ = Association[
+    0 -> 0., Rational[1, 10] -> 0.06867504768676794, Rational[1, 5] -> 
+     0.9300012993668891, Rational[3, 10] -> 0.0013236454146710811`, 
+     Rational[2, 5] -> 7.531671521657169*^-9, Rational[1, 2] -> 
+     2.5233990786135577`*^-16, Rational[3, 5] -> 1.8525309197789446`*^-26, 
+     Rational[7, 10] -> 2.10908037239269*^-40, Rational[4, 5] -> 
+     5.7874122943908644`*^-61, Rational[9, 10] -> 2.585520739228116*^-97, 1 -> 
+     0.], $CellContext`estimate1$$ = 0.5, $CellContext`estimate2$$ = 
+    0.5, $CellContext`gva$$ = {$CellContext`estimate1$$}, $CellContext`gvb$$ \
+= {$CellContext`estimate2$$}, $CellContext`maxellist$$ = {0, 
+     Rational[1, 2], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 10], 
+     Rational[3, 10], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[3, 10], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[3, 10], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5], 
+     Rational[1, 5]}, $CellContext`numberoftrials$$ = 
+    20, $CellContext`trialno$$ = 150, $CellContext`weight$$ = 
+    0.2, $CellContext`weightage1$$ = 0.5, $CellContext`weightage2$$ = 0.5, 
+    Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
+    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
+    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{
+      Hold[$CellContext`algorithm$$], {
+      "Bayesian Inference", "Expectation Maximization"}}, {
+      Hold[
+       Row[{
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Bayesian Inference", 
+           Button["start", 
+            Dynamic[
+             
+             Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+               Association[
+                0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                 1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 1/11,
+                  9/10 -> 1/11, 10/10 -> 
+                 1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+               Table[
+                 
+                 RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                   0}], {$CellContext`trialno$$}]; 
+              Map[Block[{$CellContext`TotalBelief}, 
+                 Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                  Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                 AppendTo[$CellContext`maxellist$$, 
+                   Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                 Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+            ImageSize -> 125], 
+           Spacer[0]]], 
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Expectation Maximization", 
+           Button["start", 
+            Dynamic[
+             
+             Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+               Association[
+                "A" -> $CellContext`estimate1$$, 
+                 "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                 $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                 $CellContext`CoinDictionary$$["B"]}; 
+              FixedPoint[
+               Block[{$CellContext`e = $CellContext`EMPreCalc[
+                   "A", "B", $CellContext`inputTotalTrial, #]}, 
+                 AppendTo[$CellContext`gva$$, 
+                   #["A"]]; AppendTo[$CellContext`gvb$$, 
+                   #["B"]]; 
+                 Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                  Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+            Method -> "Queued", ImageSize -> 125], 
+           Spacer[0]]]}]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[$CellContext`maxellist$$], {}}, {{
+       Hold[$CellContext`weightage1$$], 0.5}}, {{
+       Hold[$CellContext`weightage2$$], 0.5}}, {{
+       Hold[$CellContext`numberoftrials$$], 20}}, {{
+       Hold[$CellContext`estimate1$$], 0.5}, {}}, {{
+       Hold[$CellContext`estimate2$$], 0.5}, {}}, {{
+       Hold[$CellContext`weight$$], 0.5}}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 1", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage1$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[1], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate1$$], 0.5, "estimate"}, 0.01, 0.99}, {{
+       Hold[$CellContext`weight$$], 0.5}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[2], 
+         Manipulate`Place[3]]]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 2", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage2$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[4], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate2$$], 0.5, "estimate"}, 0.01, 0.99}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[5], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`CoinDictionary$$], 
+       Association[
+       "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}}, {{
+       Hold[$CellContext`gva$$], {$CellContext`estimate1$$}}, {}}, {{
+       Hold[$CellContext`gvb$$], {$CellContext`estimate2$$}}, {}}, {{
+       Hold[$CellContext`numberoftrials$$], 20, "# of trials"}, 10, 100, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[6], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300, "# of trials"}, 50, 500, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Bayesian Inference", 
+         Manipulate`Place[7], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300}}, {{
+       Hold[$CellContext`DictBelief$$], 
+       Association[
+       0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+        Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> Rational[1, 11],
+         Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> Rational[1, 11],
+         Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+        Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+        Rational[1, 11], 1 -> Rational[1, 11]]}, {}}}, Typeset`size$$ = {
+    450., {223., 227.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
+    Typeset`skipInitDone$$ = False, $CellContext`algorithm$739$$ = 
+    False, $CellContext`weightage1$744$$ = 0, $CellContext`estimate1$745$$ = 
+    0, $CellContext`weight$746$$ = 0, $CellContext`weightage2$747$$ = 
+    0, $CellContext`estimate2$748$$ = 0, $CellContext`numberoftrials$749$$ = 
+    0, $CellContext`trialno$750$$ = 0}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     2, StandardForm, 
+      "Variables" :> {$CellContext`algorithm$$ = 
+        "Bayesian Inference", $CellContext`CoinDictionary$$ = 
+        Association[
+         "A" -> $CellContext`estimate1, 
+          "B" -> $CellContext`estimate2], $CellContext`DictBelief$$ = 
+        Association[
+         0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+          Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+          Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+          Rational[1, 11], Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+          Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+          Rational[1, 11], 1 -> Rational[1, 11]], $CellContext`estimate1$$ = 
+        0.5, $CellContext`estimate2$$ = 
+        0.5, $CellContext`gva$$ = {$CellContext`estimate1$$}, \
+$CellContext`gvb$$ = {$CellContext`estimate2$$}, $CellContext`maxellist$$ = \
+{}, $CellContext`numberoftrials$$ = 20, $CellContext`trialno$$ = 
+        300, $CellContext`weight$$ = 0.5, $CellContext`weightage1$$ = 
+        0.5, $CellContext`weightage2$$ = 0.5}, "ControllerVariables" :> {
+        Hold[$CellContext`algorithm$$, $CellContext`algorithm$739$$, False], 
+        Hold[$CellContext`weightage1$$, $CellContext`weightage1$744$$, 0], 
+        Hold[$CellContext`estimate1$$, $CellContext`estimate1$745$$, 0], 
+        Hold[$CellContext`weight$$, $CellContext`weight$746$$, 0], 
+        Hold[$CellContext`weightage2$$, $CellContext`weightage2$747$$, 0], 
+        Hold[$CellContext`estimate2$$, $CellContext`estimate2$748$$, 0], 
+        Hold[$CellContext`numberoftrials$$, $CellContext`numberoftrials$749$$,
+          0], 
+        Hold[$CellContext`trialno$$, $CellContext`trialno$750$$, 0]}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> 
+      Switch[$CellContext`algorithm$$, "Bayesian Inference", 
+        GraphicsColumn[{
+          Labeled[
+           BarChart[
+            Values[$CellContext`DictBelief$$], ChartLabels -> 
+            Placed[{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.}, 
+              Bottom], AxesLabel -> {"Coin Weightage", "Belief in Weightage"},
+             PlotLabel -> "Convergence Onto Intial Stream Probability", 
+            PlotRange -> 1, ImageSize -> {343, 173}], 
+           Column[{
+             Style[
+              StringJoin["number of coin flips: ", 
+               ToString[$CellContext`trialno$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin weightage: ", 
+               ToString[$CellContext`weight$$]], FontFamily -> "Arial"]}]], 
+          
+          ListPlot[{$CellContext`maxellist$$}, PlotRange -> 1, 
+           AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+           PlotLabel -> "Convergence of Probability Calculation", 
+           ImageSize -> {350, 170}, Epilog -> {Red, 
+             Line[{{0, 
+                Dynamic[$CellContext`weight$$]}, {1000, 
+                Dynamic[$CellContext`weight$$]}}]}]}, ImageSize -> {450, 450},
+          Frame -> None], "Expectation Maximization", 
+        GraphicsColumn[{
+          Labeled[
+           
+           ListPlot[{$CellContext`gva$$, $CellContext`gvb$$}, PlotRange -> 1, 
+            AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+            PlotLabel -> "Convergence of Probability Calculation", 
+            ImageSize -> {Automatic, 130}, AspectRatio -> 1/3, Epilog -> {Red, 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage1$$]}, {100, 
+                 Dynamic[$CellContext`weightage1$$]}}], 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage2$$]}, {100, 
+                 Dynamic[$CellContext`weightage2$$]}}]}], 
+           Column[{
+             Style[
+              StringJoin["coin 1 weightage: ", 
+               ToString[$CellContext`weightage1$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin 2 weightage: ", 
+               ToString[$CellContext`weightage2$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for one coin is: ", 
+               ToString[
+                Part[$CellContext`gva$$, -1]]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for the other coin is: ", 
+               ToString[
+                Part[$CellContext`gvb$$, -1]]], FontFamily -> "Arial"]}], {
+           Bottom}], 
+          BarChart[{
+            Part[$CellContext`gva$$, -1], 
+            Part[$CellContext`gvb$$, -1]}, ImageSize -> {350, 170}, PlotRange -> 
+           1, AxesLabel -> {"Coin", "Weightage"}, PlotLabel -> 
+           "Convergence of Probabilities of Coins", ImageSize -> {343, 173}]},
+          ImageSize -> {450, 450}, Frame -> None]], 
+      "Specifications" :> {{$CellContext`algorithm$$, {
+         "Bayesian Inference", "Expectation Maximization"}}, 
+        Row[{
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Bayesian Inference", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+                Association[
+                 0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                  1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 
+                  1/11, 9/10 -> 1/11, 10/10 -> 
+                  1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+                Table[
+                  
+                  RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                    0}], {$CellContext`trialno$$}]; 
+               Map[Block[{$CellContext`TotalBelief}, 
+                  Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                   Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                  AppendTo[$CellContext`maxellist$$, 
+                    Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                  Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+             ImageSize -> 125], 
+            Spacer[0]]], 
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Expectation Maximization", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+                Association[
+                 "A" -> $CellContext`estimate1$$, 
+                  "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                  $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                  $CellContext`CoinDictionary$$["B"]}; 
+               FixedPoint[
+                Block[{$CellContext`e = $CellContext`EMPreCalc[
+                    "A", "B", $CellContext`inputTotalTrial, #]}, 
+                  AppendTo[$CellContext`gva$$, 
+                    #["A"]]; AppendTo[$CellContext`gvb$$, 
+                    #["B"]]; 
+                  Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                   Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+             Method -> "Queued", ImageSize -> 125], 
+            Spacer[0]]]}], {$CellContext`maxellist$$, {}, ControlType -> 
+         None}, {{$CellContext`weightage1$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`weightage2$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20}, ControlType -> 
+         None}, {{$CellContext`estimate1$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`estimate2$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`weight$$, 0.5}, ControlType -> None}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 1", Bold], 
+          Spacer[0]]], {{$CellContext`weightage1$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 1}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[1], 
+          Spacer[0]]], {{$CellContext`estimate1$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 
+         2}, {{$CellContext`weight$$, 0.5}, 0, 1, 0.1, ImageSize -> 100, 
+         ControlPlacement -> 3}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[2], 
+          Manipulate`Place[3]]], 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 2", Bold], 
+          Spacer[0]]], {{$CellContext`weightage2$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 4}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[4], 
+          Spacer[0]]], {{$CellContext`estimate2$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 5}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[5], 
+          Spacer[0]]], Delimiter, {{$CellContext`CoinDictionary$$, 
+          Association[
+          "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gva$$, {$CellContext`estimate1$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gvb$$, {$CellContext`estimate2$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20, "# of trials"}, 10, 100, 
+         1, ImageSize -> 100, ControlPlacement -> 6}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[6], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300, "# of trials"}, 50, 500,
+          1, ImageSize -> 100, ControlPlacement -> 7}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Bayesian Inference", 
+          Manipulate`Place[7], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300}, ControlType -> 
+         None}, {{$CellContext`DictBelief$$, 
+          Association[
+          0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+           Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+           Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+           Rational[1, 11], Rational[3, 5] -> Rational[1, 11], 
+           Rational[7, 10] -> Rational[1, 11], Rational[4, 5] -> 
+           Rational[1, 11], Rational[9, 10] -> Rational[1, 11], 1 -> 
+           Rational[1, 11]]}, {}, ControlType -> None}}, 
+      "Options" :> {
+       ControlPlacement -> {
+         Top, Left, Left, Left, Left, Left, Left, Left, Left, Left, Left, 
+          Left, Left, Left, Left, Left}, SynchronousUpdating -> True, 
+        AutorunSequencing -> {1, 2}, ContentSize -> {455, 455}, FrameMargins -> 
+        Tiny}, "DefaultOptions" :> {ControllerLinking -> True}],
+     ImageSizeCache->{636., {255., 261.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    Initialization:>(($CellContext`estimate1$$ = 
+       0.5; $CellContext`estimate2$$ = 0.5; Null); Typeset`initDone$$ = True),
+    SynchronousInitialization->True,
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellID->1444019246]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "SnapshotsSection"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`algorithm$$ = 
+    "Bayesian Inference", $CellContext`CoinDictionary$$ = Association[
+    "A" -> $CellContext`estimate1, 
+     "B" -> $CellContext`estimate2], $CellContext`DictBelief$$ = Association[
+    0 -> 0., Rational[1, 10] -> 2.0125375648452424`*^-304, Rational[1, 5] -> 
+     2.2982782485488946`*^-187, Rational[3, 10] -> 1.4761400431877392`*^-121, 
+     Rational[2, 5] -> 2.566674955314679*^-77, Rational[1, 2] -> 
+     1.3668088012505648`*^-45, Rational[3, 5] -> 9.946291432906933*^-23, 
+     Rational[7, 10] -> 1.7455448128576254`*^-7, Rational[4, 5] -> 
+     0.9999998122956348, Rational[9, 10] -> 1.3149883994614123`*^-8, 1 -> 
+     0.], $CellContext`estimate1$$ = 0.5, $CellContext`estimate2$$ = 
+    0.5, $CellContext`gva$$ = {$CellContext`estimate1$$}, $CellContext`gvb$$ \
+= {$CellContext`estimate2$$}, $CellContext`maxellist$$ = {1, 
+     Rational[1, 2], 
+     Rational[7, 10], 
+     Rational[1, 2], 
+     Rational[3, 5], 
+     Rational[7, 10], 
+     Rational[3, 5], 
+     Rational[3, 5], 
+     Rational[7, 10], 
+     Rational[3, 5], 
+     Rational[3, 5], 
+     Rational[7, 10], 
+     Rational[3, 5], 
+     Rational[3, 5], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[3, 5], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[7, 10], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[4, 5], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[4, 5], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[7, 10], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5], 
+     Rational[4, 5]}, $CellContext`numberoftrials$$ = 
+    20, $CellContext`trialno$$ = 500, $CellContext`weight$$ = 
+    0.8, $CellContext`weightage1$$ = 0.5, $CellContext`weightage2$$ = 0.5, 
+    Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
+    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
+    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{
+      Hold[$CellContext`algorithm$$], {
+      "Bayesian Inference", "Expectation Maximization"}}, {
+      Hold[
+       Row[{
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Bayesian Inference", 
+           Button["start", 
+            Dynamic[
+             Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+               Association[
+                0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                 1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 1/11,
+                  9/10 -> 1/11, 10/10 -> 
+                 1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+               Table[
+                 
+                 RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                   0}], {$CellContext`trialno$$}]; 
+              Map[Block[{$CellContext`TotalBelief}, 
+                 Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                  Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                 AppendTo[$CellContext`maxellist$$, 
+                   Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                 Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+            ImageSize -> 125], 
+           Spacer[0]]], 
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Expectation Maximization", 
+           Button["start", 
+            Dynamic[
+             
+             Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+               Association[
+                "A" -> $CellContext`estimate1$$, 
+                 "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                 $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                 $CellContext`CoinDictionary$$["B"]}; 
+              FixedPoint[
+               Block[{$CellContext`e = $CellContext`EMPreCalc[
+                   "A", "B", $CellContext`inputTotalTrial, #]}, 
+                 AppendTo[$CellContext`gva$$, 
+                   #["A"]]; AppendTo[$CellContext`gvb$$, 
+                   #["B"]]; 
+                 Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                  Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+            Method -> "Queued", ImageSize -> 125], 
+           Spacer[0]]]}]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[$CellContext`maxellist$$], {}}, {{
+       Hold[$CellContext`weightage1$$], 0.5}}, {{
+       Hold[$CellContext`weightage2$$], 0.5}}, {{
+       Hold[$CellContext`numberoftrials$$], 20}}, {{
+       Hold[$CellContext`estimate1$$], 0.5}, {}}, {{
+       Hold[$CellContext`estimate2$$], 0.5}, {}}, {{
+       Hold[$CellContext`weight$$], 0.5}}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 1", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage1$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[1], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate1$$], 0.5, "estimate"}, 0.01, 0.99}, {{
+       Hold[$CellContext`weight$$], 0.5}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[2], 
+         Manipulate`Place[3]]]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 2", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage2$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[4], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate2$$], 0.5, "estimate"}, 0.01, 0.99}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[5], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`CoinDictionary$$], 
+       Association[
+       "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}}, {{
+       Hold[$CellContext`gva$$], {$CellContext`estimate1$$}}, {}}, {{
+       Hold[$CellContext`gvb$$], {$CellContext`estimate2$$}}, {}}, {{
+       Hold[$CellContext`numberoftrials$$], 20, "# of trials"}, 10, 100, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[6], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300, "# of trials"}, 50, 500, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Bayesian Inference", 
+         Manipulate`Place[7], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300}}, {{
+       Hold[$CellContext`DictBelief$$], 
+       Association[
+       0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+        Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> Rational[1, 11],
+         Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> Rational[1, 11],
+         Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+        Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+        Rational[1, 11], 1 -> Rational[1, 11]]}, {}}}, Typeset`size$$ = {
+    450., {223., 227.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
+    Typeset`skipInitDone$$ = False, $CellContext`algorithm$739$$ = 
+    False, $CellContext`weightage1$744$$ = 0, $CellContext`estimate1$745$$ = 
+    0, $CellContext`weight$746$$ = 0, $CellContext`weightage2$747$$ = 
+    0, $CellContext`estimate2$748$$ = 0, $CellContext`numberoftrials$749$$ = 
+    0, $CellContext`trialno$750$$ = 0}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     2, StandardForm, 
+      "Variables" :> {$CellContext`algorithm$$ = 
+        "Bayesian Inference", $CellContext`CoinDictionary$$ = 
+        Association[
+         "A" -> $CellContext`estimate1, 
+          "B" -> $CellContext`estimate2], $CellContext`DictBelief$$ = 
+        Association[
+         0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+          Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+          Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+          Rational[1, 11], Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+          Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+          Rational[1, 11], 1 -> Rational[1, 11]], $CellContext`estimate1$$ = 
+        0.5, $CellContext`estimate2$$ = 
+        0.5, $CellContext`gva$$ = {$CellContext`estimate1$$}, \
+$CellContext`gvb$$ = {$CellContext`estimate2$$}, $CellContext`maxellist$$ = \
+{}, $CellContext`numberoftrials$$ = 20, $CellContext`trialno$$ = 
+        300, $CellContext`weight$$ = 0.5, $CellContext`weightage1$$ = 
+        0.5, $CellContext`weightage2$$ = 0.5}, "ControllerVariables" :> {
+        Hold[$CellContext`algorithm$$, $CellContext`algorithm$739$$, False], 
+        Hold[$CellContext`weightage1$$, $CellContext`weightage1$744$$, 0], 
+        Hold[$CellContext`estimate1$$, $CellContext`estimate1$745$$, 0], 
+        Hold[$CellContext`weight$$, $CellContext`weight$746$$, 0], 
+        Hold[$CellContext`weightage2$$, $CellContext`weightage2$747$$, 0], 
+        Hold[$CellContext`estimate2$$, $CellContext`estimate2$748$$, 0], 
+        Hold[$CellContext`numberoftrials$$, $CellContext`numberoftrials$749$$,
+          0], 
+        Hold[$CellContext`trialno$$, $CellContext`trialno$750$$, 0]}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> 
+      Switch[$CellContext`algorithm$$, "Bayesian Inference", 
+        GraphicsColumn[{
+          Labeled[
+           BarChart[
+            Values[$CellContext`DictBelief$$], ChartLabels -> 
+            Placed[{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.}, 
+              Bottom], AxesLabel -> {"Coin Weightage", "Belief in Weightage"},
+             PlotLabel -> "Convergence Onto Intial Stream Probability", 
+            PlotRange -> 1, ImageSize -> {343, 173}], 
+           Column[{
+             Style[
+              StringJoin["number of coin flips: ", 
+               ToString[$CellContext`trialno$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin weightage: ", 
+               ToString[$CellContext`weight$$]], FontFamily -> "Arial"]}]], 
+          
+          ListPlot[{$CellContext`maxellist$$}, PlotRange -> 1, 
+           AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+           PlotLabel -> "Convergence of Probability Calculation", 
+           ImageSize -> {350, 170}, Epilog -> {Red, 
+             Line[{{0, 
+                Dynamic[$CellContext`weight$$]}, {1000, 
+                Dynamic[$CellContext`weight$$]}}]}]}, ImageSize -> {450, 450},
+          Frame -> None], "Expectation Maximization", 
+        GraphicsColumn[{
+          Labeled[
+           
+           ListPlot[{$CellContext`gva$$, $CellContext`gvb$$}, PlotRange -> 1, 
+            AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+            PlotLabel -> "Convergence of Probability Calculation", 
+            ImageSize -> {Automatic, 130}, AspectRatio -> 1/3, Epilog -> {Red, 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage1$$]}, {100, 
+                 Dynamic[$CellContext`weightage1$$]}}], 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage2$$]}, {100, 
+                 Dynamic[$CellContext`weightage2$$]}}]}], 
+           Column[{
+             Style[
+              StringJoin["coin 1 weightage: ", 
+               ToString[$CellContext`weightage1$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin 2 weightage: ", 
+               ToString[$CellContext`weightage2$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for one coin is: ", 
+               ToString[
+                Part[$CellContext`gva$$, -1]]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for the other coin is: ", 
+               ToString[
+                Part[$CellContext`gvb$$, -1]]], FontFamily -> "Arial"]}], {
+           Bottom}], 
+          BarChart[{
+            Part[$CellContext`gva$$, -1], 
+            Part[$CellContext`gvb$$, -1]}, ImageSize -> {350, 170}, PlotRange -> 
+           1, AxesLabel -> {"Coin", "Weightage"}, PlotLabel -> 
+           "Convergence of Probabilities of Coins", ImageSize -> {343, 173}]},
+          ImageSize -> {450, 450}, Frame -> None]], 
+      "Specifications" :> {{$CellContext`algorithm$$, {
+         "Bayesian Inference", "Expectation Maximization"}}, 
+        Row[{
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Bayesian Inference", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+                Association[
+                 0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                  1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 
+                  1/11, 9/10 -> 1/11, 10/10 -> 
+                  1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+                Table[
+                  
+                  RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                    0}], {$CellContext`trialno$$}]; 
+               Map[Block[{$CellContext`TotalBelief}, 
+                  Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                   Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                  AppendTo[$CellContext`maxellist$$, 
+                    Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                  Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+             ImageSize -> 125], 
+            Spacer[0]]], 
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Expectation Maximization", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+                Association[
+                 "A" -> $CellContext`estimate1$$, 
+                  "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                  $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                  $CellContext`CoinDictionary$$["B"]}; 
+               FixedPoint[
+                Block[{$CellContext`e = $CellContext`EMPreCalc[
+                    "A", "B", $CellContext`inputTotalTrial, #]}, 
+                  AppendTo[$CellContext`gva$$, 
+                    #["A"]]; AppendTo[$CellContext`gvb$$, 
+                    #["B"]]; 
+                  Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                   Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+             Method -> "Queued", ImageSize -> 125], 
+            Spacer[0]]]}], {$CellContext`maxellist$$, {}, ControlType -> 
+         None}, {{$CellContext`weightage1$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`weightage2$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20}, ControlType -> 
+         None}, {{$CellContext`estimate1$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`estimate2$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`weight$$, 0.5}, ControlType -> None}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 1", Bold], 
+          Spacer[0]]], {{$CellContext`weightage1$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 1}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[1], 
+          Spacer[0]]], {{$CellContext`estimate1$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 
+         2}, {{$CellContext`weight$$, 0.5}, 0, 1, 0.1, ImageSize -> 100, 
+         ControlPlacement -> 3}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[2], 
+          Manipulate`Place[3]]], 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 2", Bold], 
+          Spacer[0]]], {{$CellContext`weightage2$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 4}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[4], 
+          Spacer[0]]], {{$CellContext`estimate2$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 5}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[5], 
+          Spacer[0]]], Delimiter, {{$CellContext`CoinDictionary$$, 
+          Association[
+          "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gva$$, {$CellContext`estimate1$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gvb$$, {$CellContext`estimate2$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20, "# of trials"}, 10, 100, 
+         1, ImageSize -> 100, ControlPlacement -> 6}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[6], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300, "# of trials"}, 50, 500,
+          1, ImageSize -> 100, ControlPlacement -> 7}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Bayesian Inference", 
+          Manipulate`Place[7], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300}, ControlType -> 
+         None}, {{$CellContext`DictBelief$$, 
+          Association[
+          0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+           Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+           Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+           Rational[1, 11], Rational[3, 5] -> Rational[1, 11], 
+           Rational[7, 10] -> Rational[1, 11], Rational[4, 5] -> 
+           Rational[1, 11], Rational[9, 10] -> Rational[1, 11], 1 -> 
+           Rational[1, 11]]}, {}, ControlType -> None}}, 
+      "Options" :> {
+       ControlPlacement -> {
+         Top, Left, Left, Left, Left, Left, Left, Left, Left, Left, Left, 
+          Left, Left, Left, Left, Left}, SynchronousUpdating -> True, 
+        AutorunSequencing -> {1, 2}, ContentSize -> {455, 455}, FrameMargins -> 
+        Tiny}, "DefaultOptions" :> {ControllerLinking -> True}],
+     ImageSizeCache->{636., {255., 261.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    Initialization:>(($CellContext`estimate1$$ = 
+       0.5; $CellContext`estimate2$$ = 0.5; Null); Typeset`initDone$$ = True),
+    SynchronousInitialization->True,
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellID->918772775],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.614651131038447*^9, 3.614651132412117*^9}},
+ CellID->1406607495],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`algorithm$$ = 
+    "Expectation Maximization", $CellContext`CoinDictionary$$ = Association[
+    "A" -> 0.194, "B" -> 0.894], $CellContext`DictBelief$$ = Association[
+    0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], Rational[1, 5] -> 
+     Rational[1, 11], Rational[3, 10] -> Rational[1, 11], Rational[2, 5] -> 
+     Rational[1, 11], Rational[1, 2] -> Rational[1, 11], Rational[3, 5] -> 
+     Rational[1, 11], Rational[7, 10] -> Rational[1, 11], Rational[4, 5] -> 
+     Rational[1, 11], Rational[9, 10] -> Rational[1, 11], 1 -> 
+     Rational[1, 11]], $CellContext`estimate1$$ = 
+    0.5, $CellContext`estimate2$$ = 0.5, $CellContext`gva$$ = {0.194, 0.194, 
+    0.2577896764981826, 0.263525528479219, 0.2651886381198089, 
+    0.26569686372199713`, 0.265850084310338, 0.26589602261398676`, 
+    0.2659097717448982, 0.2659138846260283, 0.26591511474817814`, 
+    0.2659154826481164, 0.2659155926765745, 0.26591562558283244`, 
+    0.2659156354241084, 0.2659156383673381, 0.26591563924756956`, 
+    0.2659156395108203}, $CellContext`gvb$$ = {0.894, 0.894, 
+    0.8831601188122079, 0.8892248252742805, 0.8911387197550764, 
+    0.8917118130992199, 0.891883154176427, 0.8919343902837403, 
+    0.8919497128052598, 0.8919542952503863, 0.8919556657163618, 
+    0.8919560755809824, 0.8919561981591039, 0.8919562348185245, 
+    0.8919562457822527, 0.891956249061174, 0.8919562500418005, 
+    0.8919562503350762}, $CellContext`maxellist$$ = {}, \
+$CellContext`numberoftrials$$ = 37, $CellContext`trialno$$ = 
+    300, $CellContext`weight$$ = 0.5, $CellContext`weightage1$$ = 
+    0.30000000000000004`, $CellContext`weightage2$$ = 0.9, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{
+      Hold[$CellContext`algorithm$$], {
+      "Bayesian Inference", "Expectation Maximization"}}, {
+      Hold[
+       Row[{
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Bayesian Inference", 
+           Button["start", 
+            Dynamic[
+             
+             Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+               Association[
+                0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                 1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 1/11,
+                  9/10 -> 1/11, 10/10 -> 
+                 1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+               Table[
+                 
+                 RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                   0}], {$CellContext`trialno$$}]; 
+              Map[Block[{$CellContext`TotalBelief}, 
+                 Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                  Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                 AppendTo[$CellContext`maxellist$$, 
+                   Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                 Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+            ImageSize -> 125], 
+           Spacer[0]]], 
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Expectation Maximization", 
+           Button["start", 
+            Dynamic[
+             
+             Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+               Association[
+                "A" -> $CellContext`estimate1$$, 
+                 "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                 $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                 $CellContext`CoinDictionary$$["B"]}; 
+              FixedPoint[
+               Block[{$CellContext`e = $CellContext`EMPreCalc[
+                   "A", "B", $CellContext`inputTotalTrial, #]}, 
+                 AppendTo[$CellContext`gva$$, 
+                   #["A"]]; AppendTo[$CellContext`gvb$$, 
+                   #["B"]]; 
+                 Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                  Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+            Method -> "Queued", ImageSize -> 125], 
+           Spacer[0]]]}]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[$CellContext`maxellist$$], {}}, {{
+       Hold[$CellContext`weightage1$$], 0.5}}, {{
+       Hold[$CellContext`weightage2$$], 0.5}}, {{
+       Hold[$CellContext`numberoftrials$$], 20}}, {{
+       Hold[$CellContext`estimate1$$], 0.5}, {}}, {{
+       Hold[$CellContext`estimate2$$], 0.5}, {}}, {{
+       Hold[$CellContext`weight$$], 0.5}}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 1", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage1$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[1], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate1$$], 0.5, "estimate"}, 0.01, 0.99}, {{
+       Hold[$CellContext`weight$$], 0.5}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[2], 
+         Manipulate`Place[3]]]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 2", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage2$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[4], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate2$$], 0.5, "estimate"}, 0.01, 0.99}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[5], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`CoinDictionary$$], 
+       Association[
+       "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}}, {{
+       Hold[$CellContext`gva$$], {$CellContext`estimate1$$}}, {}}, {{
+       Hold[$CellContext`gvb$$], {$CellContext`estimate2$$}}, {}}, {{
+       Hold[$CellContext`numberoftrials$$], 20, "# of trials"}, 10, 100, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[6], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300, "# of trials"}, 50, 500, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Bayesian Inference", 
+         Manipulate`Place[7], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300}}, {{
+       Hold[$CellContext`DictBelief$$], 
+       Association[
+       0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+        Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> Rational[1, 11],
+         Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> Rational[1, 11],
+         Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+        Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+        Rational[1, 11], 1 -> Rational[1, 11]]}, {}}}, Typeset`size$$ = {
+    450., {223., 227.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
+    Typeset`skipInitDone$$ = False, $CellContext`algorithm$739$$ = 
+    False, $CellContext`weightage1$744$$ = 0, $CellContext`estimate1$745$$ = 
+    0, $CellContext`weight$746$$ = 0, $CellContext`weightage2$747$$ = 
+    0, $CellContext`estimate2$748$$ = 0, $CellContext`numberoftrials$749$$ = 
+    0, $CellContext`trialno$750$$ = 0}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     2, StandardForm, 
+      "Variables" :> {$CellContext`algorithm$$ = 
+        "Bayesian Inference", $CellContext`CoinDictionary$$ = 
+        Association[
+         "A" -> $CellContext`estimate1, 
+          "B" -> $CellContext`estimate2], $CellContext`DictBelief$$ = 
+        Association[
+         0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+          Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+          Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+          Rational[1, 11], Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+          Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+          Rational[1, 11], 1 -> Rational[1, 11]], $CellContext`estimate1$$ = 
+        0.5, $CellContext`estimate2$$ = 
+        0.5, $CellContext`gva$$ = {$CellContext`estimate1$$}, \
+$CellContext`gvb$$ = {$CellContext`estimate2$$}, $CellContext`maxellist$$ = \
+{}, $CellContext`numberoftrials$$ = 20, $CellContext`trialno$$ = 
+        300, $CellContext`weight$$ = 0.5, $CellContext`weightage1$$ = 
+        0.5, $CellContext`weightage2$$ = 0.5}, "ControllerVariables" :> {
+        Hold[$CellContext`algorithm$$, $CellContext`algorithm$739$$, False], 
+        Hold[$CellContext`weightage1$$, $CellContext`weightage1$744$$, 0], 
+        Hold[$CellContext`estimate1$$, $CellContext`estimate1$745$$, 0], 
+        Hold[$CellContext`weight$$, $CellContext`weight$746$$, 0], 
+        Hold[$CellContext`weightage2$$, $CellContext`weightage2$747$$, 0], 
+        Hold[$CellContext`estimate2$$, $CellContext`estimate2$748$$, 0], 
+        Hold[$CellContext`numberoftrials$$, $CellContext`numberoftrials$749$$,
+          0], 
+        Hold[$CellContext`trialno$$, $CellContext`trialno$750$$, 0]}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> 
+      Switch[$CellContext`algorithm$$, "Bayesian Inference", 
+        GraphicsColumn[{
+          Labeled[
+           BarChart[
+            Values[$CellContext`DictBelief$$], ChartLabels -> 
+            Placed[{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.}, 
+              Bottom], AxesLabel -> {"Coin Weightage", "Belief in Weightage"},
+             PlotLabel -> "Convergence Onto Intial Stream Probability", 
+            PlotRange -> 1, ImageSize -> {343, 173}], 
+           Column[{
+             Style[
+              StringJoin["number of coin flips: ", 
+               ToString[$CellContext`trialno$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin weightage: ", 
+               ToString[$CellContext`weight$$]], FontFamily -> "Arial"]}]], 
+          
+          ListPlot[{$CellContext`maxellist$$}, PlotRange -> 1, 
+           AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+           PlotLabel -> "Convergence of Probability Calculation", 
+           ImageSize -> {350, 170}, Epilog -> {Red, 
+             Line[{{0, 
+                Dynamic[$CellContext`weight$$]}, {1000, 
+                Dynamic[$CellContext`weight$$]}}]}]}, ImageSize -> {450, 450},
+          Frame -> None], "Expectation Maximization", 
+        GraphicsColumn[{
+          Labeled[
+           
+           ListPlot[{$CellContext`gva$$, $CellContext`gvb$$}, PlotRange -> 1, 
+            AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+            PlotLabel -> "Convergence of Probability Calculation", 
+            ImageSize -> {Automatic, 130}, AspectRatio -> 1/3, Epilog -> {Red, 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage1$$]}, {100, 
+                 Dynamic[$CellContext`weightage1$$]}}], 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage2$$]}, {100, 
+                 Dynamic[$CellContext`weightage2$$]}}]}], 
+           Column[{
+             Style[
+              StringJoin["coin 1 weightage: ", 
+               ToString[$CellContext`weightage1$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin 2 weightage: ", 
+               ToString[$CellContext`weightage2$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for one coin is: ", 
+               ToString[
+                Part[$CellContext`gva$$, -1]]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for the other coin is: ", 
+               ToString[
+                Part[$CellContext`gvb$$, -1]]], FontFamily -> "Arial"]}], {
+           Bottom}], 
+          BarChart[{
+            Part[$CellContext`gva$$, -1], 
+            Part[$CellContext`gvb$$, -1]}, ImageSize -> {350, 170}, PlotRange -> 
+           1, AxesLabel -> {"Coin", "Weightage"}, PlotLabel -> 
+           "Convergence of Probabilities of Coins", ImageSize -> {343, 173}]},
+          ImageSize -> {450, 450}, Frame -> None]], 
+      "Specifications" :> {{$CellContext`algorithm$$, {
+         "Bayesian Inference", "Expectation Maximization"}}, 
+        Row[{
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Bayesian Inference", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+                Association[
+                 0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                  1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 
+                  1/11, 9/10 -> 1/11, 10/10 -> 
+                  1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+                Table[
+                  
+                  RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                    0}], {$CellContext`trialno$$}]; 
+               Map[
+                Block[{$CellContext`TotalBelief}, 
+                  Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                   Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                  AppendTo[$CellContext`maxellist$$, 
+                    Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                  Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+             ImageSize -> 125], 
+            Spacer[0]]], 
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Expectation Maximization", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+                Association[
+                 "A" -> $CellContext`estimate1$$, 
+                  "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                  $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                  $CellContext`CoinDictionary$$["B"]}; 
+               FixedPoint[
+                Block[{$CellContext`e = $CellContext`EMPreCalc[
+                    "A", "B", $CellContext`inputTotalTrial, #]}, 
+                  AppendTo[$CellContext`gva$$, 
+                    #["A"]]; AppendTo[$CellContext`gvb$$, 
+                    #["B"]]; 
+                  Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                   Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+             Method -> "Queued", ImageSize -> 125], 
+            Spacer[0]]]}], {$CellContext`maxellist$$, {}, ControlType -> 
+         None}, {{$CellContext`weightage1$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`weightage2$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20}, ControlType -> 
+         None}, {{$CellContext`estimate1$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`estimate2$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`weight$$, 0.5}, ControlType -> None}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 1", Bold], 
+          Spacer[0]]], {{$CellContext`weightage1$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 1}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[1], 
+          Spacer[0]]], {{$CellContext`estimate1$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 
+         2}, {{$CellContext`weight$$, 0.5}, 0, 1, 0.1, ImageSize -> 100, 
+         ControlPlacement -> 3}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[2], 
+          Manipulate`Place[3]]], 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 2", Bold], 
+          Spacer[0]]], {{$CellContext`weightage2$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 4}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[4], 
+          Spacer[0]]], {{$CellContext`estimate2$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 5}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[5], 
+          Spacer[0]]], Delimiter, {{$CellContext`CoinDictionary$$, 
+          Association[
+          "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gva$$, {$CellContext`estimate1$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gvb$$, {$CellContext`estimate2$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20, "# of trials"}, 10, 100, 
+         1, ImageSize -> 100, ControlPlacement -> 6}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[6], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300, "# of trials"}, 50, 500,
+          1, ImageSize -> 100, ControlPlacement -> 7}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Bayesian Inference", 
+          Manipulate`Place[7], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300}, ControlType -> 
+         None}, {{$CellContext`DictBelief$$, 
+          Association[
+          0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+           Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+           Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+           Rational[1, 11], Rational[3, 5] -> Rational[1, 11], 
+           Rational[7, 10] -> Rational[1, 11], Rational[4, 5] -> 
+           Rational[1, 11], Rational[9, 10] -> Rational[1, 11], 1 -> 
+           Rational[1, 11]]}, {}, ControlType -> None}}, 
+      "Options" :> {
+       ControlPlacement -> {
+         Top, Left, Left, Left, Left, Left, Left, Left, Left, Left, Left, 
+          Left, Left, Left, Left, Left}, SynchronousUpdating -> True, 
+        AutorunSequencing -> {1, 2}, ContentSize -> {455, 455}, FrameMargins -> 
+        Tiny}, "DefaultOptions" :> {ControllerLinking -> True}],
+     ImageSizeCache->{636., {255., 261.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    Initialization:>(($CellContext`estimate1$$ = 
+       0.5; $CellContext`estimate2$$ = 0.5; Null); Typeset`initDone$$ = True),
+    SynchronousInitialization->True,
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellID->1352182289],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`algorithm$$ = 
+    "Expectation Maximization", $CellContext`CoinDictionary$$ = Association[
+    "A" -> 0.5, "B" -> 0.5], $CellContext`DictBelief$$ = Association[
+    0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], Rational[1, 5] -> 
+     Rational[1, 11], Rational[3, 10] -> Rational[1, 11], Rational[2, 5] -> 
+     Rational[1, 11], Rational[1, 2] -> Rational[1, 11], Rational[3, 5] -> 
+     Rational[1, 11], Rational[7, 10] -> Rational[1, 11], Rational[4, 5] -> 
+     Rational[1, 11], Rational[9, 10] -> Rational[1, 11], 1 -> 
+     Rational[1, 11]], $CellContext`estimate1$$ = 
+    0.5, $CellContext`estimate2$$ = 0.5, $CellContext`gva$$ = {0.5, 0.5, 
+    0.615}, $CellContext`gvb$$ = {0.5, 0.5, 
+    0.615}, $CellContext`maxellist$$ = {}, $CellContext`numberoftrials$$ = 
+    20, $CellContext`trialno$$ = 300, $CellContext`weight$$ = 
+    0.5, $CellContext`weightage1$$ = 
+    0.30000000000000004`, $CellContext`weightage2$$ = 0.8, Typeset`show$$ = 
+    True, Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{
+      Hold[$CellContext`algorithm$$], {
+      "Bayesian Inference", "Expectation Maximization"}}, {
+      Hold[
+       Row[{
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Bayesian Inference", 
+           Button["start", 
+            Dynamic[
+             
+             Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+               Association[
+                0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                 1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 1/11,
+                  9/10 -> 1/11, 10/10 -> 
+                 1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+               Table[
+                 
+                 RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                   0}], {$CellContext`trialno$$}]; 
+              Map[Block[{$CellContext`TotalBelief}, 
+                 Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                  Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                 AppendTo[$CellContext`maxellist$$, 
+                   Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                 Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+            ImageSize -> 125], 
+           Spacer[0]]], 
+         Dynamic[
+          If[$CellContext`algorithm$$ === "Expectation Maximization", 
+           Button["start", 
+            Dynamic[
+             
+             Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+               Association[
+                "A" -> $CellContext`estimate1$$, 
+                 "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                 $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                 $CellContext`CoinDictionary$$["B"]}; 
+              FixedPoint[
+               Block[{$CellContext`e = $CellContext`EMPreCalc[
+                   "A", "B", $CellContext`inputTotalTrial, #]}, 
+                 AppendTo[$CellContext`gva$$, 
+                   #["A"]]; AppendTo[$CellContext`gvb$$, 
+                   #["B"]]; 
+                 Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                  Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+            Method -> "Queued", ImageSize -> 125], 
+           Spacer[0]]]}]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[$CellContext`maxellist$$], {}}, {{
+       Hold[$CellContext`weightage1$$], 0.5}}, {{
+       Hold[$CellContext`weightage2$$], 0.5}}, {{
+       Hold[$CellContext`numberoftrials$$], 20}}, {{
+       Hold[$CellContext`estimate1$$], 0.5}, {}}, {{
+       Hold[$CellContext`estimate2$$], 0.5}, {}}, {{
+       Hold[$CellContext`weight$$], 0.5}}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 1", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage1$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[1], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate1$$], 0.5, "estimate"}, 0.01, 0.99}, {{
+       Hold[$CellContext`weight$$], 0.5}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[2], 
+         Manipulate`Place[3]]]], Manipulate`Dump`ThisIsNotAControl}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Style["coin 2", Bold], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`weightage2$$], 0.5, "actual"}, 0, 1, 0.1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[4], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`estimate2$$], 0.5, "estimate"}, 0.01, 0.99}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[5], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`CoinDictionary$$], 
+       Association[
+       "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}}, {{
+       Hold[$CellContext`gva$$], {$CellContext`estimate1$$}}, {}}, {{
+       Hold[$CellContext`gvb$$], {$CellContext`estimate2$$}}, {}}, {{
+       Hold[$CellContext`numberoftrials$$], 20, "# of trials"}, 10, 100, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Expectation Maximization", 
+         Manipulate`Place[6], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300, "# of trials"}, 50, 500, 1}, {
+      Hold[
+       Dynamic[
+        If[$CellContext`algorithm$$ === "Bayesian Inference", 
+         Manipulate`Place[7], 
+         Spacer[0]]]], Manipulate`Dump`ThisIsNotAControl}, {{
+       Hold[$CellContext`trialno$$], 300}}, {{
+       Hold[$CellContext`DictBelief$$], 
+       Association[
+       0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+        Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> Rational[1, 11],
+         Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> Rational[1, 11],
+         Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+        Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+        Rational[1, 11], 1 -> Rational[1, 11]]}, {}}}, Typeset`size$$ = {
+    450., {223., 227.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
+    Typeset`skipInitDone$$ = False, $CellContext`algorithm$739$$ = 
+    False, $CellContext`weightage1$744$$ = 0, $CellContext`estimate1$745$$ = 
+    0, $CellContext`weight$746$$ = 0, $CellContext`weightage2$747$$ = 
+    0, $CellContext`estimate2$748$$ = 0, $CellContext`numberoftrials$749$$ = 
+    0, $CellContext`trialno$750$$ = 0}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     2, StandardForm, 
+      "Variables" :> {$CellContext`algorithm$$ = 
+        "Bayesian Inference", $CellContext`CoinDictionary$$ = 
+        Association[
+         "A" -> $CellContext`estimate1, 
+          "B" -> $CellContext`estimate2], $CellContext`DictBelief$$ = 
+        Association[
+         0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+          Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+          Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+          Rational[1, 11], Rational[3, 5] -> Rational[1, 11], Rational[7, 10] -> 
+          Rational[1, 11], Rational[4, 5] -> Rational[1, 11], Rational[9, 10] -> 
+          Rational[1, 11], 1 -> Rational[1, 11]], $CellContext`estimate1$$ = 
+        0.5, $CellContext`estimate2$$ = 
+        0.5, $CellContext`gva$$ = {$CellContext`estimate1$$}, \
+$CellContext`gvb$$ = {$CellContext`estimate2$$}, $CellContext`maxellist$$ = \
+{}, $CellContext`numberoftrials$$ = 20, $CellContext`trialno$$ = 
+        300, $CellContext`weight$$ = 0.5, $CellContext`weightage1$$ = 
+        0.5, $CellContext`weightage2$$ = 0.5}, "ControllerVariables" :> {
+        Hold[$CellContext`algorithm$$, $CellContext`algorithm$739$$, False], 
+        Hold[$CellContext`weightage1$$, $CellContext`weightage1$744$$, 0], 
+        Hold[$CellContext`estimate1$$, $CellContext`estimate1$745$$, 0], 
+        Hold[$CellContext`weight$$, $CellContext`weight$746$$, 0], 
+        Hold[$CellContext`weightage2$$, $CellContext`weightage2$747$$, 0], 
+        Hold[$CellContext`estimate2$$, $CellContext`estimate2$748$$, 0], 
+        Hold[$CellContext`numberoftrials$$, $CellContext`numberoftrials$749$$,
+          0], 
+        Hold[$CellContext`trialno$$, $CellContext`trialno$750$$, 0]}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> 
+      Switch[$CellContext`algorithm$$, "Bayesian Inference", 
+        GraphicsColumn[{
+          Labeled[
+           BarChart[
+            Values[$CellContext`DictBelief$$], ChartLabels -> 
+            Placed[{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.}, 
+              Bottom], AxesLabel -> {"Coin Weightage", "Belief in Weightage"},
+             PlotLabel -> "Convergence Onto Intial Stream Probability", 
+            PlotRange -> 1, ImageSize -> {343, 173}], 
+           Column[{
+             Style[
+              StringJoin["number of coin flips: ", 
+               ToString[$CellContext`trialno$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin weightage: ", 
+               ToString[$CellContext`weight$$]], FontFamily -> "Arial"]}]], 
+          
+          ListPlot[{$CellContext`maxellist$$}, PlotRange -> 1, 
+           AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+           PlotLabel -> "Convergence of Probability Calculation", 
+           ImageSize -> {350, 170}, Epilog -> {Red, 
+             Line[{{0, 
+                Dynamic[$CellContext`weight$$]}, {1000, 
+                Dynamic[$CellContext`weight$$]}}]}]}, ImageSize -> {450, 450},
+          Frame -> None], "Expectation Maximization", 
+        GraphicsColumn[{
+          Labeled[
+           
+           ListPlot[{$CellContext`gva$$, $CellContext`gvb$$}, PlotRange -> 1, 
+            AxesLabel -> {"Number of Iterations", "Weightage of Coin"}, 
+            PlotLabel -> "Convergence of Probability Calculation", 
+            ImageSize -> {Automatic, 130}, AspectRatio -> 1/3, Epilog -> {Red, 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage1$$]}, {100, 
+                 Dynamic[$CellContext`weightage1$$]}}], 
+              Line[{{0, 
+                 Dynamic[$CellContext`weightage2$$]}, {100, 
+                 Dynamic[$CellContext`weightage2$$]}}]}], 
+           Column[{
+             Style[
+              StringJoin["coin 1 weightage: ", 
+               ToString[$CellContext`weightage1$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["coin 2 weightage: ", 
+               ToString[$CellContext`weightage2$$]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for one coin is: ", 
+               ToString[
+                Part[$CellContext`gva$$, -1]]], FontFamily -> "Arial"], 
+             Style[
+              StringJoin["convergence for the other coin is: ", 
+               ToString[
+                Part[$CellContext`gvb$$, -1]]], FontFamily -> "Arial"]}], {
+           Bottom}], 
+          BarChart[{
+            Part[$CellContext`gva$$, -1], 
+            Part[$CellContext`gvb$$, -1]}, ImageSize -> {350, 170}, PlotRange -> 
+           1, AxesLabel -> {"Coin", "Weightage"}, PlotLabel -> 
+           "Convergence of Probabilities of Coins", ImageSize -> {343, 173}]},
+          ImageSize -> {450, 450}, Frame -> None]], 
+      "Specifications" :> {{$CellContext`algorithm$$, {
+         "Bayesian Inference", "Expectation Maximization"}}, 
+        Row[{
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Bayesian Inference", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`str}, $CellContext`DictBelief$$ = 
+                Association[
+                 0/10 -> 1/11, 1/10 -> 1/11, 2/10 -> 1/11, 3/10 -> 1/11, 4/10 -> 
+                  1/11, 5/10 -> 1/11, 6/10 -> 1/11, 7/10 -> 1/11, 8/10 -> 
+                  1/11, 9/10 -> 1/11, 10/10 -> 
+                  1/11]; $CellContext`maxellist$$ = {}; $CellContext`str = 
+                Table[
+                  
+                  RandomChoice[{$CellContext`weight$$, 
+                    1 - $CellContext`weight$$} -> {1, 
+                    0}], {$CellContext`trialno$$}]; 
+               Map[Block[{$CellContext`TotalBelief}, 
+                  Do[$CellContext`DictBelief$$[$CellContext`i/10] = If[# == 0, 
+                    
+                    N[(1 - $CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/10]], 
+                    
+                    N[($CellContext`i/
+                    10) $CellContext`DictBelief$$[$CellContext`i/
+                    10]]], {$CellContext`i, 0, 10}]; $CellContext`TotalBelief = 
+                   Total[
+                    
+                    Values[$CellContext`DictBelief$$]]; \
+$CellContext`DictBelief$$ = \
+$CellContext`DictBelief$$/$CellContext`TotalBelief; 
+                  AppendTo[$CellContext`maxellist$$, 
+                    Part[
+                    Position[$CellContext`DictBelief$$, 
+                    Max[$CellContext`DictBelief$$]], 1, 1, 1]]; 
+                  Pause[0.007]]& , $CellContext`str]]], Method -> "Queued", 
+             ImageSize -> 125], 
+            Spacer[0]]], 
+          Dynamic[
+           If[$CellContext`algorithm$$ === "Expectation Maximization", 
+            Button["start", 
+             Dynamic[
+              
+              Block[{$CellContext`inputTotalTrial}, \
+$CellContext`inputTotalTrial = $CellContext`GenStr[$CellContext`weightage1$$, \
+$CellContext`weightage2$$, $CellContext`numberoftrials$$]; \
+$CellContext`CoinDictionary$$ = 
+                Association[
+                 "A" -> $CellContext`estimate1$$, 
+                  "B" -> $CellContext`estimate2$$]; $CellContext`gva$$ = {
+                  $CellContext`CoinDictionary$$["A"]}; $CellContext`gvb$$ = {
+                  $CellContext`CoinDictionary$$["B"]}; 
+               FixedPoint[
+                Block[{$CellContext`e = $CellContext`EMPreCalc[
+                    "A", "B", $CellContext`inputTotalTrial, #]}, 
+                  AppendTo[$CellContext`gva$$, 
+                    #["A"]]; AppendTo[$CellContext`gvb$$, 
+                    #["B"]]; 
+                  Pause[0.007]; $CellContext`e]& , \
+$CellContext`CoinDictionary$$, SameTest -> (Apply[And, 
+                   Map[Abs[#] < 10^(-10)& , Values[#] - Values[#2]]]& )]]], 
+             Method -> "Queued", ImageSize -> 125], 
+            Spacer[0]]]}], {$CellContext`maxellist$$, {}, ControlType -> 
+         None}, {{$CellContext`weightage1$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`weightage2$$, 0.5}, ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20}, ControlType -> 
+         None}, {{$CellContext`estimate1$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`estimate2$$, 0.5}, {}, ControlType -> 
+         None}, {{$CellContext`weight$$, 0.5}, ControlType -> None}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 1", Bold], 
+          Spacer[0]]], {{$CellContext`weightage1$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 1}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[1], 
+          Spacer[0]]], {{$CellContext`estimate1$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 
+         2}, {{$CellContext`weight$$, 0.5}, 0, 1, 0.1, ImageSize -> 100, 
+         ControlPlacement -> 3}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[2], 
+          Manipulate`Place[3]]], 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Style["coin 2", Bold], 
+          Spacer[0]]], {{$CellContext`weightage2$$, 0.5, "actual"}, 0, 1, 0.1,
+          ImageSize -> 100, ControlPlacement -> 4}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[4], 
+          Spacer[0]]], {{$CellContext`estimate2$$, 0.5, "estimate"}, 0.01, 
+         0.99, ImageSize -> 100, ControlPlacement -> 5}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[5], 
+          Spacer[0]]], Delimiter, {{$CellContext`CoinDictionary$$, 
+          Association[
+          "A" -> $CellContext`estimate1, "B" -> $CellContext`estimate2]}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gva$$, {$CellContext`estimate1$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`gvb$$, {$CellContext`estimate2$$}}, {}, 
+         ControlType -> 
+         None}, {{$CellContext`numberoftrials$$, 20, "# of trials"}, 10, 100, 
+         1, ImageSize -> 100, ControlPlacement -> 6}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Expectation Maximization", 
+          Manipulate`Place[6], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300, "# of trials"}, 50, 500,
+          1, ImageSize -> 100, ControlPlacement -> 7}, 
+        Dynamic[
+         If[$CellContext`algorithm$$ === "Bayesian Inference", 
+          Manipulate`Place[7], 
+          Spacer[0]]], {{$CellContext`trialno$$, 300}, ControlType -> 
+         None}, {{$CellContext`DictBelief$$, 
+          Association[
+          0 -> Rational[1, 11], Rational[1, 10] -> Rational[1, 11], 
+           Rational[1, 5] -> Rational[1, 11], Rational[3, 10] -> 
+           Rational[1, 11], Rational[2, 5] -> Rational[1, 11], Rational[1, 2] -> 
+           Rational[1, 11], Rational[3, 5] -> Rational[1, 11], 
+           Rational[7, 10] -> Rational[1, 11], Rational[4, 5] -> 
+           Rational[1, 11], Rational[9, 10] -> Rational[1, 11], 1 -> 
+           Rational[1, 11]]}, {}, ControlType -> None}}, 
+      "Options" :> {
+       ControlPlacement -> {
+         Top, Left, Left, Left, Left, Left, Left, Left, Left, Left, Left, 
+          Left, Left, Left, Left, Left}, SynchronousUpdating -> True, 
+        AutorunSequencing -> {1, 2}, ContentSize -> {455, 455}, FrameMargins -> 
+        Tiny}, "DefaultOptions" :> {ControllerLinking -> True}],
+     ImageSizeCache->{636., {255., 261.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    Initialization:>(($CellContext`estimate1$$ = 
+       0.5; $CellContext`estimate2$$ = 0.5; Null); Typeset`initDone$$ = True),
+    SynchronousInitialization->True,
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellID->1455778669]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "DetailsSection"],
+
+Cell["\<\
+Note that starting both the estimates at the same value for the expectation \
+maximization simulation will product inaccurate results, and this is an \
+effect of the algorithm itself. The algorithm applies the estimates to the \
+whole input stream, and so the numbers will converge to the same value. \
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6145296350522547`*^9, 3.61452967993701*^9}, {
+  3.614529736876449*^9, 3.614529767162837*^9}, {3.614529815101253*^9, 
+  3.614529823848792*^9}, {3.614534301570024*^9, 3.614534301571361*^9}, {
+  3.6146343257762527`*^9, 3.61463432651081*^9}, {3.614634950936119*^9, 
+  3.614634958690564*^9}, {3.6146352603348494`*^9, 3.614635260337476*^9}},
+ CellID->1736211662],
+
+Cell["\<\
+Snapshot 1: With a large stream of input, the convergence is very definite\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6145296350522547`*^9, 3.61452967993701*^9}, {
+  3.614529736876449*^9, 3.614529767162837*^9}, {3.614529815101253*^9, 
+  3.614529823848792*^9}, {3.614534301570024*^9, 3.614534301571361*^9}, {
+  3.6146343257762527`*^9, 3.61463432651081*^9}, {3.614634950936119*^9, 
+  3.614634958690564*^9}, {3.6146352603348494`*^9, 3.6146352698219013`*^9}, {
+  3.6146511439152603`*^9, 3.61465115494594*^9}},
+ CellID->1352380708],
+
+Cell["\<\
+Snapshot 2: A typical example of convergence of expectation maximization\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6145296350522547`*^9, 3.61452967993701*^9}, {
+  3.614529736876449*^9, 3.614529767162837*^9}, {3.614529815101253*^9, 
+  3.614529823848792*^9}, {3.614534301570024*^9, 3.614534301571361*^9}, {
+  3.6146343257762527`*^9, 3.61463432651081*^9}, {3.614634950936119*^9, 
+  3.614634958690564*^9}, {3.6146352603348494`*^9, 3.6146352698219013`*^9}, {
+  3.6146511439152603`*^9, 3.61465116874692*^9}},
+ CellID->1550918379],
+
+Cell["\<\
+Snapshot 4: An example of a failed run due to equal initial estimates\
+\>", "DetailNotes",
+ CellChangeTimes->{{3.6145296350522547`*^9, 3.61452967993701*^9}, {
+  3.614529736876449*^9, 3.614529767162837*^9}, {3.614529815101253*^9, 
+  3.614529823848792*^9}, {3.614534301570024*^9, 3.614534301571361*^9}, {
+  3.6146343257762527`*^9, 3.61463432651081*^9}, {3.614634950936119*^9, 
+  3.614634958690564*^9}, {3.6146352603348494`*^9, 3.614635274731991*^9}},
+ CellID->289755134],
+
+Cell[TextData[{
+ "C.B. Do and S. Batzoglou, \"What is the expectation maximization algorithm?\
+\" ",
+ StyleBox["Nature Biotechnology, ",
+  FontSlant->"Italic"],
+ StyleBox["26",
+  FontWeight->"Bold"],
+ "(8), 2008, pp. 897-899."
+}], "DetailNotes",
+ CellChangeTimes->{{3.614651179224382*^9, 3.614651316013702*^9}},
+ CellID->1283688199]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "ControlSuggestionsSection"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Resize Images"]}],
+  "\"Click inside an image to reveal its orange resize frame.\\nDrag any of \
+the orange resize handles to resize the image.\"",
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"ResizeImages"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Rotate and Zoom in 3D"]}],
+  RowBox[{
+   "\"Drag a 3D graphic to rotate it. Starting the drag near the center \
+tumbles\\nthe graphic; starting near a corner turns it parallel to the plane \
+of the screen.\\nHold down \"", 
+    FrameBox[
+    "Ctrl", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" (or \"", 
+    FrameBox[
+    "Cmd", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" on Mac) and drag up and down to zoom.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"RotateAndZoomIn3D"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Drag Locators"]}],
+  RowBox[{"\"Drag any locator (\"", 
+    GraphicsBox[
+     LocatorBox[
+      Scaled[{0.5, 0.5}]], ImageSize -> 20], 
+    "\", etc.) to move it around.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"DragLocators"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Create and Delete Locators"]}],
+  RowBox[{"\"Insert a new locator in the graphic by holding down the \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], 
+    "\" key\\nand clicking where you want it to be. Delete a locator by \
+clicking it\\nwhile holding down the \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" key.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"CreateAndDeleteLocators"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Slider Zoom"]}],
+  RowBox[{"\"Hold down the \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], 
+    "\" key while moving a slider to make fine adjustments in the slider \
+value.\\nHold \"", 
+    FrameBox[
+    "Ctrl", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" and/or \"", 
+    FrameBox[
+    "Shift", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" at the same time as \"", 
+    FrameBox[
+    "Alt", Background -> GrayLevel[0.9], FrameMargins -> 2, FrameStyle -> 
+     GrayLevel[0.9]], "\" to make ever finer adjustments.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"SliderZoom"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Gamepad Controls"]}],
+  "\"Control this Demonstration with a gamepad or other\\nhuman interface \
+device connected to your computer.\"",
+  TooltipDelay->0.35]], "ControlSuggestions",
+ CellChangeTimes->{3.35696210375764*^9, 3.3895522232313623`*^9},
+ FontFamily->"Verdana",
+ CellTags->"GamepadControls"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Automatic Animation"]}],
+  RowBox[{"\"Animate a slider in this Demonstration by clicking the\"", 
+    AdjustmentBox[
+     Cell[
+      GraphicsData[
+      "CompressedBitmap", 
+       "eJzzTSzJSM1NLMlMTlRwL0osyMhMLlZwyy8CCjEzMjAwcIKwAgOI/R/IhBKc\n\
+/4EAyGAG0f+nTZsGwgysIJIRKsWKLAXGIHFmEpUgLADxWUAkI24jZs+eTaEt\n\
+IG+wQKRmzJgBlYf5lhEA30OqWA=="], "Graphics", ImageSize -> {9, 9}, ImageMargins -> 
+      0, CellBaseline -> Baseline], BoxBaselineShift -> 0.1839080459770115, 
+     BoxMargins -> {{0., 0.}, {-0.1839080459770115, 0.1839080459770115}}], 
+    "\"button\\nnext to the slider, and then clicking the play button that \
+appears.\\nAnimate all controls by selecting \"", 
+    StyleBox["Autorun", FontWeight -> "Bold"], "\" from the\"", 
+    AdjustmentBox[
+     Cell[
+      GraphicsData[
+      "CompressedBitmap", 
+       "eJyNULENwyAQfEySIlMwTVJlCGRFsosokeNtqBmDBagoaZjAI1C8/8GUUUC6\n\
+57h7cQ8PvU7Pl17nUav7oj/TPH7V7b2QJAUAXBkKmCPRowxICy64bRvGGNF7\n\
+X8CctGoDSN4xhIDGGDhzFXwUh3/ClBKrDQPmnGXtI6u0OOd+tZBVUqy1xSaH\n\
+UqiK6pPe4XdEdAz6563tx/gejuORGMxJaz8mdpJn7hc="], "Graphics", 
+      ImageSize -> {10, 10}, ImageMargins -> 0, CellBaseline -> Baseline], 
+     BoxBaselineShift -> 0.1839080459770115, 
+     BoxMargins -> {{0., 0.}, {-0.1839080459770115, 0.1839080459770115}}], 
+    "\"menu.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"AutomaticAnimation"],
+
+Cell[BoxData[
+ TooltipBox[
+  RowBox[{
+   CheckboxBox[False], Cell[" Bookmark Animation"]}],
+  RowBox[{
+   "\"See a prepared animation of this Demonstration by selecting\\n\"", 
+    StyleBox["Animate Bookmarks", FontWeight -> "Bold"], "\" from the\"", 
+    AdjustmentBox[
+     Cell[
+      GraphicsData[
+      "CompressedBitmap", 
+       "eJyNULENwyAQfEySIlMwTVJlCGRFsosokeNtqBmDBagoaZjAI1C8/8GUUUC6\n\
+57h7cQ8PvU7Pl17nUav7oj/TPH7V7b2QJAUAXBkKmCPRowxICy64bRvGGNF7\n\
+X8CctGoDSN4xhIDGGDhzFXwUh3/ClBKrDQPmnGXtI6u0OOd+tZBVUqy1xSaH\n\
+UqiK6pPe4XdEdAz6563tx/gejuORGMxJaz8mdpJn7hc="], "Graphics", 
+      ImageSize -> {10, 10}, ImageMargins -> 0, CellBaseline -> Baseline], 
+     BoxBaselineShift -> 0.1839080459770115, 
+     BoxMargins -> {{0., 0.}, {-0.1839080459770115, 0.1839080459770115}}], 
+    "\"menu.\""}],
+  TooltipDelay->0.35]], "ControlSuggestions",
+ FontFamily->"Verdana",
+ CellTags->"BookmarkAnimation"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "SearchTermsSection"],
+
+Cell["probability", "SearchTerms",
+ CellChangeTimes->{{3.614530696404035*^9, 3.6145306983265657`*^9}, {
+  3.6145307324531927`*^9, 3.614530732733214*^9}},
+ CellID->273667225],
+
+Cell["Bayesian", "SearchTerms",
+ CellChangeTimes->{{3.614530705527918*^9, 3.614530707802012*^9}},
+ CellID->1762562348],
+
+Cell["Bayesian inference", "SearchTerms",
+ CellChangeTimes->{{3.6145307097440147`*^9, 3.6145307362608957`*^9}},
+ CellID->1546930508],
+
+Cell["expectation maximization", "SearchTerms",
+ CellChangeTimes->{{3.614530713955381*^9, 3.614530739901026*^9}},
+ CellID->1824017374],
+
+Cell["coin", "SearchTerms",
+ CellChangeTimes->{{3.614530723870613*^9, 3.61453072440978*^9}, {
+  3.614530848661045*^9, 3.614530848821121*^9}},
+ CellID->1225372257],
+
+Cell["coin flip ", "SearchTerms",
+ CellChangeTimes->{{3.614530726903925*^9, 3.614530730342184*^9}, {
+  3.6145308513011723`*^9, 3.6145308531651373`*^9}},
+ CellID->463348669],
+
+Cell["Bayes", "SearchTerms",
+ CellChangeTimes->{{3.614530937922195*^9, 3.6145309394271317`*^9}},
+ CellID->968621203],
+
+Cell["inference", "SearchTerms",
+ CellChangeTimes->{{3.614530944853334*^9, 3.614530945848198*^9}},
+ CellID->1269576917]
+}, Open  ]],
+
+Cell["", "RelatedLinksSection"],
+
+Cell[CellGroupData[{
+
+Cell["", "AuthorSection"],
+
+Cell["Contributed by: Kavya Ravichandran", "Author",
+ CellChangeTimes->{{3.614531019230548*^9, 3.6145310223409986`*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{936, 687},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (June 27, \
+2014)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "Demonstration.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "ResizeImages"->{
+  Cell[148919, 3447, 312, 8, 29, "ControlSuggestions",
+   CellTags->"ResizeImages"]},
+ "RotateAndZoomIn3D"->{
+  Cell[149234, 3457, 678, 16, 29, "ControlSuggestions",
+   CellTags->"RotateAndZoomIn3D"]},
+ "DragLocators"->{
+  Cell[149915, 3475, 340, 11, 29, "ControlSuggestions",
+   CellTags->"DragLocators"]},
+ "CreateAndDeleteLocators"->{
+  Cell[150258, 3488, 637, 15, 29, "ControlSuggestions",
+   CellTags->"CreateAndDeleteLocators"]},
+ "SliderZoom"->{
+  Cell[150898, 3505, 844, 21, 29, "ControlSuggestions",
+   CellTags->"SliderZoom"]},
+ "GamepadControls"->{
+  Cell[151745, 3528, 369, 9, 29, "ControlSuggestions",
+   CellTags->"GamepadControls"]},
+ "AutomaticAnimation"->{
+  Cell[152117, 3539, 1464, 31, 29, "ControlSuggestions",
+   CellTags->"AutomaticAnimation"]},
+ "BookmarkAnimation"->{
+  Cell[153584, 3572, 908, 21, 29, "ControlSuggestions",
+   CellTags->"BookmarkAnimation"]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"ResizeImages", 156333, 3659},
+ {"RotateAndZoomIn3D", 156443, 3662},
+ {"DragLocators", 156554, 3665},
+ {"CreateAndDeleteLocators", 156671, 3668},
+ {"SliderZoom", 156786, 3671},
+ {"GamepadControls", 156893, 3674},
+ {"AutomaticAnimation", 157007, 3677},
+ {"BookmarkAnimation", 157125, 3680}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 236, 4, 108, "DemoTitle"],
+Cell[CellGroupData[{
+Cell[841, 30, 33, 0, 275, "InitializationSection"],
+Cell[877, 32, 1182, 32, 104, "Input",
+ InitializationCell->True,
+ CellID->402142591],
+Cell[2062, 66, 1470, 42, 105, "Input",
+ InitializationCell->True,
+ CellID->679489828],
+Cell[3535, 110, 4422, 113, 339, "Input",
+ InitializationCell->True,
+ CellID->2014988097]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[7994, 228, 29, 0, 201, "ManipulateSection"],
+Cell[8026, 230, 40108, 831, 2075, "Input",
+ CellID->542973771],
+Cell[48137, 1063, 112, 2, 24, "Input",
+ CellID->1732817859]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[48286, 1070, 36, 0, 181, "ManipulateCaptionSection"],
+Cell[48325, 1072, 1367, 20, 119, "ManipulateCaption"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[49729, 1097, 28, 0, 179, "ThumbnailSection"],
+Cell[49760, 1099, 23622, 550, 528, "Output",
+ CellID->1444019246]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[73419, 1654, 28, 0, 149, "SnapshotsSection"],
+Cell[73450, 1656, 31382, 899, 528, "Output",
+ CellID->918772775],
+Cell[CellGroupData[{
+Cell[104857, 2559, 113, 2, 24, InheritFromParent,
+ CellID->1406607495],
+Cell[104973, 2563, 20957, 412, 528, "Output",
+ CellID->1352182289],
+Cell[125933, 2977, 20228, 400, 528, "Output",
+ CellID->1455778669]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[146210, 3383, 26, 0, 357, "DetailsSection"],
+Cell[146239, 3385, 711, 11, 55, "DetailNotes",
+ CellID->1736211662],
+Cell[146953, 3398, 536, 9, 23, "DetailNotes",
+ CellID->1352380708],
+Cell[147492, 3409, 534, 9, 23, "DetailNotes",
+ CellID->1550918379],
+Cell[148029, 3420, 478, 8, 23, "DetailNotes",
+ CellID->289755134],
+Cell[148510, 3430, 332, 10, 23, "DetailNotes",
+ CellID->1283688199]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[148879, 3445, 37, 0, 131, "ControlSuggestionsSection"],
+Cell[148919, 3447, 312, 8, 29, "ControlSuggestions",
+ CellTags->"ResizeImages"],
+Cell[149234, 3457, 678, 16, 29, "ControlSuggestions",
+ CellTags->"RotateAndZoomIn3D"],
+Cell[149915, 3475, 340, 11, 29, "ControlSuggestions",
+ CellTags->"DragLocators"],
+Cell[150258, 3488, 637, 15, 29, "ControlSuggestions",
+ CellTags->"CreateAndDeleteLocators"],
+Cell[150898, 3505, 844, 21, 29, "ControlSuggestions",
+ CellTags->"SliderZoom"],
+Cell[151745, 3528, 369, 9, 29, "ControlSuggestions",
+ CellTags->"GamepadControls"],
+Cell[152117, 3539, 1464, 31, 29, "ControlSuggestions",
+ CellTags->"AutomaticAnimation"],
+Cell[153584, 3572, 908, 21, 29, "ControlSuggestions",
+ CellTags->"BookmarkAnimation"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[154529, 3598, 30, 0, 165, "SearchTermsSection"],
+Cell[154562, 3600, 173, 3, 23, "SearchTerms",
+ CellID->273667225],
+Cell[154738, 3605, 118, 2, 23, "SearchTerms",
+ CellID->1762562348],
+Cell[154859, 3609, 132, 2, 23, "SearchTerms",
+ CellID->1546930508],
+Cell[154994, 3613, 134, 2, 23, "SearchTerms",
+ CellID->1824017374],
+Cell[155131, 3617, 162, 3, 23, "SearchTerms",
+ CellID->1225372257],
+Cell[155296, 3622, 172, 3, 23, "SearchTerms",
+ CellID->463348669],
+Cell[155471, 3627, 116, 2, 23, "SearchTerms",
+ CellID->968621203],
+Cell[155590, 3631, 119, 2, 23, "SearchTerms",
+ CellID->1269576917]
+}, Open  ]],
+Cell[155724, 3636, 31, 0, 149, "RelatedLinksSection"],
+Cell[CellGroupData[{
+Cell[155780, 3640, 25, 0, 137, "AuthorSection"],
+Cell[155808, 3642, 120, 1, 23, "Author"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
